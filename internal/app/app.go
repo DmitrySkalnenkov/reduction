@@ -3,11 +3,14 @@ package app
 import (
 	"fmt"
 	"io"
-	"math/rand"
+
+	//"math/rand"
+	"crypto/rand"
+	"encoding/base32"
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
+	//	"time"
 )
 
 const SHORT_URL_LENGTH = 15
@@ -19,10 +22,13 @@ const (
 var UrlStorage map[string]string //Storage for shortened URL
 
 func randomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
-	b := make([]byte, length+2)
-	rand.Read(b)
-	return fmt.Sprintf("%x", b)[2 : length+2]
+	randomBytes := make([]byte, 32)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		panic(err)
+	}
+	randFixStr := base32.StdEncoding.EncodeToString(randomBytes)[:length]
+	return strings.ToLower(randFixStr)
 }
 func printMap(mapa map[string]string) {
 	for k, v := range mapa {
