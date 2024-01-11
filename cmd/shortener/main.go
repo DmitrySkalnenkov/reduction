@@ -11,9 +11,9 @@ import (
 
 func main() {
 
-	app.UrlStorage = make(map[string]string)
+	app.URLStorage = make(map[string]string)
+	var hostPortStr = app.HostAddr + app.HostPort //(i1) Сервер должен быть доступен по адресу: http://localhost:8080.
 
-	var hostPortStr string = ":8080" //(i1) Сервер должен быть доступен по адресу: http://localhost:8080.
 	s := &http.Server{
 		Addr: hostPortStr,
 	}

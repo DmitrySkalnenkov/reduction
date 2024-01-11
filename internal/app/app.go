@@ -13,13 +13,14 @@ import (
 	//	"time"
 )
 
-const SHORT_URL_LENGTH = 15
+const ShortURLLength = 15
 const (
 	HostPort string = ":8080"
-	HostUrl  string = "http://localhost" + HostPort + "/"
+	HostAddr string = "localhost"
+	HostURL  string = "http://" + HostAddr + HostPort + "/"
 )
 
-var UrlStorage map[string]string //Storage for shortened URL
+var URLStorage map[string]string //Storage for shortened URL
 
 func randomString(length int) string {
 	randomBytes := make([]byte, 32)
@@ -41,20 +42,20 @@ func trimSlashes(slashedStr string) string {
 	return strings.ReplaceAll(slashedStr, "/", "")
 }
 
-func reductUrl(url string, shortUrlLength int, urlStorage map[string]string) string {
-	shortUrl := randomString(shortUrlLength)
+func reductURL(url string, shortURLLength int, urlStorage map[string]string) string {
+	shortURL := randomString(shortURLLength)
 	for {
-		_, ok := urlStorage[shortUrl]
+		_, ok := urlStorage[shortURL]
 		if !ok {
-			urlStorage[shortUrl] = url
-			return shortUrl
+			urlStorage[shortURL] = url
+			return shortURL
 		}
-		shortUrl = randomString(shortUrlLength)
+		shortURL = randomString(shortURLLength)
 	}
 }
 
 //Return saved long URL from URL storage
-func getUrlFromStorage(id string, urlStorage map[string]string) string {
+func getURLFromStorage(id string, urlStorage map[string]string) string {
 	url, ok := urlStorage[id]
 	if ok {
 		//fmt.Printf("DEBUG: Found shorten URL with id '%s' is URL storage.\n", id)
@@ -76,23 +77,27 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		bodyStr := string(body)
 		fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
 		w.WriteHeader(http.StatusCreated) //code 201
-		resp := reductUrl(bodyStr, SHORT_URL_LENGTH, UrlStorage)
+		resp := reductURL(bodyStr, ShortURLLength, URLStorage)
 		fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
 		fmt.Println("DEBUG: UrlStorage:")
-		printMap(UrlStorage)
-		_, err = w.Write([]byte(HostUrl + resp))
+		printMap(URLStorage)
+		_, err = w.Write([]byte(HostURL + resp))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		return
 	case http.MethodGet: // Эндпоинт GET /{id} принимает в качестве URL-параметра идентификатор сокращённого URL и возвращает ответ с кодом 307 и оригинальным URL в HTTP-заголовке Location.
 		urlPath := r.URL.Path
 		fmt.Printf("DEBUG: GET method. URL is %s.\n", string(urlPath))
 		matched, err := regexp.MatchString(`/[A-Za-z0-9]+$`, urlPath)
 		id := trimSlashes(urlPath)
-		if matched && (err == nil) && len(id) == SHORT_URL_LENGTH {
-			fmt.Printf("DEBUG: Got URL id with lenght %d. URL id = '%s' .\n", SHORT_URL_LENGTH, id)
-			longUrl := getUrlFromStorage(id, UrlStorage)
-			if longUrl != "" {
-				fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longUrl)
-				w.Header().Set("Location", longUrl)
+		if matched && (err == nil) && len(id) == ShortURLLength {
+			fmt.Printf("DEBUG: Got URL id with lenght %d. URL id = '%s' .\n", ShortURLLength, id)
+			longURL := getURLFromStorage(id, URLStorage)
+			if longURL != "" {
+				fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURL)
+				w.Header().Set("Location", longURL)
 			} else {
 				fmt.Printf("DEBUG: Long URL with id '%s' not found in URL storage.", id)
 			}
