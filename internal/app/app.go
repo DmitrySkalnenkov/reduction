@@ -11,6 +11,10 @@ import (
 )
 
 const SHORT_URL_LENGTH = 15
+const (
+	HostPort string = ":8080"
+	HostUrl  string = "http://localhost" + HostPort + "/"
+)
 
 var UrlStorage map[string]string //Storage for shortened URL
 
@@ -65,11 +69,13 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		bodyStr := string(body)
 		fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusCreated) //code 201
 		resp := reductUrl(bodyStr, SHORT_URL_LENGTH, UrlStorage)
 		fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
 		fmt.Println("DEBUG: UrlStorage:")
 		printMap(UrlStorage)
+		_, err = w.Write([]byte(HostUrl + resp))
+		return
 	case http.MethodGet: // Эндпоинт GET /{id} принимает в качестве URL-параметра идентификатор сокращённого URL и возвращает ответ с кодом 307 и оригинальным URL в HTTP-заголовке Location.
 		urlPath := r.URL.Path
 		fmt.Printf("DEBUG: GET method. URL is %s.\n", string(urlPath))
@@ -86,8 +92,10 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		w.WriteHeader(http.StatusTemporaryRedirect) //code 307
+		return
 	default:
 		fmt.Printf("DEBUG: Only POST and GET request method supported.\n")
 		w.WriteHeader(http.StatusBadRequest) //code 400
+		return
 	}
 }
