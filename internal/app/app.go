@@ -24,9 +24,14 @@ var URLStorage map[string]string //Storage for shortened URL
 
 func randomString(length int) string {
 	randomBytes := make([]byte, 32)
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		panic(err)
+	if length > 0 {
+		_, err := rand.Read(randomBytes)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		fmt.Printf("ERROR: Random string length should be > 0. Now it is %d.\n", length)
+		return ""
 	}
 	randFixStr := base32.StdEncoding.EncodeToString(randomBytes)[:length]
 	return strings.ToLower(randFixStr)
