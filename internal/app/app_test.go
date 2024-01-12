@@ -92,8 +92,7 @@ func TestTrimSlashes(t *testing.T) {
 }
 
 func TestReductURL(t *testing.T) {
-	var us map[string]string
-	us = make(map[string]string)
+	var us = make(map[string]string)
 
 	type inputStruct struct {
 		url            string
@@ -165,8 +164,7 @@ func TestReductURL(t *testing.T) {
 }
 
 func TestGetURLFromStorage(t *testing.T) {
-	var us map[string]string
-	us = make(map[string]string)
+	var us = make(map[string]string)
 
 	us["qwerfadsfd"] = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
 	us["8rewq78rqew"] = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
