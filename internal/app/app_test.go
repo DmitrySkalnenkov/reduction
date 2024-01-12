@@ -12,6 +12,7 @@ import (
 	"testing"
 )
 
+//(i2) Покройте сервис юнит-тестами. Сконцентрируйтесь на покрытии тестами эндпоинтов, чтобы защитить API сервиса от случайных изменений.
 func TestRandomString(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -228,8 +229,6 @@ func TestGetURLFromStorage(t *testing.T) {
 		})
 	}
 }
-
-//var URLStorage map[string]string
 
 func TestPostAndGetHandler(t *testing.T) {
 
