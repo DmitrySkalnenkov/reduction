@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/go-chi/chi/v5"
 	//	"time"
 )
 
@@ -37,6 +39,8 @@ func randomString(length int) string {
 	return strings.ToLower(randFixStr)
 }
 func printMap(mapa map[string]string) {
+	fmt.Println("")
+	fmt.Println("DEBUG: UrlStorage:")
 	for k, v := range mapa {
 		fmt.Println(k, "value is", v)
 	}
@@ -71,10 +75,9 @@ func getURLFromStorage(id string, urlStorage map[string]string) string {
 	}
 }
 
+//POST and GET handler (legacy)
 func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("")
-	fmt.Println("DEBUG: UrlStorage:")
-	printMap(URLStorage)
+	printMap(URLStorage) //for DEBUG
 	switch r.Method {
 	case http.MethodPost: //(i1) Эндпоинт POST / принимает в теле запроса строку URL для сокращения и возвращает ответ с кодом 201 и сокращённым URL в виде текстовой строки в теле.
 		body, err := io.ReadAll(r.Body)
@@ -86,6 +89,7 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
 		w.WriteHeader(http.StatusCreated) //code 201
 		resp := reductURL(bodyStr, ShortURLLength, URLStorage)
+		printMap(URLStorage) //for DEBUG
 		fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
 		_, err = w.Write([]byte(HostURL + resp))
 		if err != nil {
@@ -116,4 +120,51 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest) //code 400
 		return
 	}
+}
+
+//POST handler
+func PostHandler(w http.ResponseWriter, r *http.Request) {
+	printMap(URLStorage) //for DEBUG
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	bodyStr := string(body)
+	fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
+	w.WriteHeader(http.StatusCreated) //code 201
+	resp := reductURL(bodyStr, ShortURLLength, URLStorage)
+	fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
+	printMap(URLStorage) //for DEBUG
+	_, err = w.Write([]byte(HostURL + resp))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+}
+
+//GET handler
+func GetHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("")
+	fmt.Println("DEBUG: UrlStorage:")
+	printMap(URLStorage)
+	id := chi.URLParam(r, "id")
+	fmt.Printf("DEBUG: Token of shortened URL is '%s'.\n", id)
+	longURL := getURLFromStorage(id, URLStorage)
+	if longURL != "" {
+		fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURL)
+		w.Header().Set("Location", longURL)
+	} else {
+		fmt.Printf("DEBUG: Long URL with id '%s' not found in URL storage.\n", id)
+	}
+	w.WriteHeader(http.StatusTemporaryRedirect) //code 307
+
+}
+
+//Handler for not implemented requests
+func NotImplementedHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("DEBUG: Only POST and GET request method supported.\n")
+	w.WriteHeader(http.StatusBadRequest) //code 400
+
 }
