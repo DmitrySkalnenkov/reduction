@@ -5,6 +5,8 @@ import (
 	"encoding/base32"
 	"fmt"
 	"strings"
+
+	"github.com/DmitrySkalnenkov/reduction/internal/storage"
 )
 
 const ShortURLLength = 15
@@ -33,12 +35,13 @@ func TrimSlashes(slashedStr string) string {
 	return strings.ReplaceAll(slashedStr, "/", "")
 }
 
-func ReductURL(url string, shortURLLength int, urlStorage map[string]string) string {
+func ReductURL(url string, shortURLLength int, r storage.Repository) string {
 	shortURL := randomString(shortURLLength)
 	for {
-		_, ok := urlStorage[shortURL]
+		_, ok := r.GetURLFromStorage(shortURL)
 		if !ok {
-			urlStorage[shortURL] = url
+			//urlStorage[shortURL] = url
+			r.SetURLIntoStorage(shortURL, url)
 			return shortURL
 		}
 		shortURL = randomString(shortURLLength)
