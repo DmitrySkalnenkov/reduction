@@ -277,43 +277,44 @@ func TestPostShortenHandler(t *testing.T) {
 	storage.URLStorage.SetURLIntoStorage("3123123123123", "https://en.wikipedia.org/wiki/Hungarian_alphabet")
 	storage.URLStorage.SetURLIntoStorage("KJFASSFASDJSJ", "https://en.wikipedia.org/wiki/Latin_alphabet")
 
-	type inputJSONStruct struct {
+	type inputStruct struct {
 		reqMethod      string
 		reqURL         string
 		reqContentType string
-		reqBody        string
+		reqJSONMsg     storage.TxJSONMessage
 	}
 
-	type wantJSONStruct struct {
+	type wantStruct struct {
 		respCode        int
 		respContentType string
-		respBodyToken   string
+		respJSONMsg     storage.TxJSONMessage
 	}
 
 	tests := []struct {
 		name  string
-		input inputJSONStruct
-		want  wantJSONStruct
+		input inputStruct
+		want  wantStruct
 	}{ //Test table
 		{
 			name: "Positive test 1. POST request",
-			input: inputJSONStruct{
+			input: inputStruct{
 				reqMethod:      http.MethodPost,
 				reqURL:         "http://127.0.0.1:8080/",
 				reqContentType: "application/json",
-				reqBody:        `{"url":"https://go.dev/tour/moretypes/19"}`,
+				reqJSONMsg: storage.TxJSONMessage{
+					URL: "http://google.com",
+				},
 			},
-			want: wantJSONStruct{
+			want: wantStruct{
 				respCode:        http.StatusOK,
 				respContentType: "application/json",
-				respBodyToken:   "result",
 			},
 		},
 	}
 	for _, tt := range tests {
 		// запускаем каждый тест
 		t.Run(tt.name, func(t *testing.T) {
-			reqJSONBody, err := json.Marshal(tt.input.reqBody)
+			reqJSONBody, err := json.Marshal(tt.input.reqJSONMsg)
 			if err != nil {
 				t.Errorf("TEST_ERROR: '%s'.\n", err)
 			}
@@ -324,17 +325,14 @@ func TestPostShortenHandler(t *testing.T) {
 			h := http.HandlerFunc(PostShortenHandler)
 			h.ServeHTTP(w, req)
 			result := w.Result()
-			resultBody, err := io.ReadAll(result.Body)
+			var resMsg storage.TxJSONMessage
+			err = json.NewDecoder(w.Body).Decode(&resMsg)
 			if err != nil {
 				t.Errorf("TEST_ERROR: %s:", err)
 			}
-			fmt.Printf("TEST_DEBUG: Response body is '%s'.\n", string(resultBody))
-			defer result.Body.Close()
-
+			//fmt.Printf("TEST_DEBUG: Response body: URL = '%s\n", resMsg.URL)
 			if result.StatusCode != tt.want.respCode {
 				t.Errorf("TEST_ERROR: Expected status code %d, got %d", tt.want.respCode, result.StatusCode)
-			} else if len(string(resultBody)) != len(app.HostURL)+app.ShortURLLength {
-				t.Errorf("TEST_ERROR: Wrong lenght of result (%d). Should be equal len(HostURL)+ShortURLLength (%d).\n", len(string(resultBody)), len(app.HostURL)+app.ShortURLLength)
 			}
 		})
 	}

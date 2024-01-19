@@ -109,7 +109,8 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 
 func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 	storage.URLStorage.PrintMap() //for DEBUG
-	var curJSONMsg storage.JSONMessage
+	var curJSONMsg storage.TxJSONMessage
+	var respJSONMsg storage.RxJSONMessage
 	if r.Header.Get("Content-Type") == "application/json" && r.Method == http.MethodPost {
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&curJSONMsg)
@@ -117,13 +118,20 @@ func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("ERROR: JSON decoding occured, %s.\n", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
-		} else if curJSONMsg.Name != "" && curJSONMsg.Value != "" {
-			log.Printf("DEBUG: JSON body: name = '%s', value = %s.\n", curJSONMsg.Name, curJSONMsg.Value)
-			w.WriteHeader(http.StatusOK) //code 200
+		} else if curJSONMsg.URL != "" {
+			bodyStr := curJSONMsg.URL
+			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
+			resp := app.ReductURL(bodyStr, app.ShortURLLength, storage.URLStorage)
+			storage.URLStorage.PrintMap() //for DEBUG
+			fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
+			respJSONMsg.Result = resp
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusCreated) //code 201
+			json.NewEncoder(w).Encode(respJSONMsg)
 			return
 		} else {
 			log.Printf("DEBUG: Wrong JSON body value.\n")
-			w.WriteHeader(http.StatusOK) //code 200
+			w.WriteHeader(http.StatusNotFound) //code 404
 			return
 		}
 	}

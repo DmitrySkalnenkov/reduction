@@ -35,6 +35,7 @@ func TrimSlashes(slashedStr string) string {
 	return strings.ReplaceAll(slashedStr, "/", "")
 }
 
+// Reduct long URL to token, save token as key and URL as value into URLStorage, return token.
 func ReductURL(url string, shortURLLength int, r storage.Repository) string {
 	shortURL := randomString(shortURLLength)
 	for {
