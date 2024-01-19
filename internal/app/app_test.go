@@ -88,7 +88,6 @@ func TestTrimSlashes(t *testing.T) {
 }
 
 func TestReductURL(t *testing.T) {
-	//var us = make(map[string]string)
 	var ur storage.Repository
 	ur.Init()
 

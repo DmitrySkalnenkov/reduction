@@ -14,9 +14,6 @@ import (
 )
 
 func TestPostAndGetHandler(t *testing.T) {
-
-	//storage.URLStorage = make(map[string]string)
-	//var URLStorage storage.Repository
 	storage.URLStorage.Init()
 	storage.URLStorage.SetURLIntoStorage("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
 	storage.URLStorage.SetURLIntoStorage("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
@@ -122,15 +119,6 @@ func TestPostAndGetHandler(t *testing.T) {
 }
 
 func TestPostHandler(t *testing.T) {
-
-	/*	storage.URLStorage = make(map[string]string)
-		storage.URLStorage["qwerfadsfd"] = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
-		storage.URLStorage["8rewq78rqew"] = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
-		storage.URLStorage["lahfsdafnb4121l"] = "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)"
-		storage.URLStorage["3123123123123"] = "https://en.wikipedia.org/wiki/Hungarian_alphabet"
-		storage.URLStorage["KJFASSFASDJSJ"] = "https://en.wikipedia.org/wiki/Latin_alphabet"
-	*/
-	//var URLStorage storage.Repository
 	storage.URLStorage.Init()
 	storage.URLStorage.SetURLIntoStorage("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
 	storage.URLStorage.SetURLIntoStorage("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
@@ -195,15 +183,6 @@ func TestPostHandler(t *testing.T) {
 	}
 }
 func TestGetHandler(t *testing.T) {
-	/*storage.URLStorage = make(map[string]string)
-	storage.URLStorage["qwerfadsfd"] = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
-	storage.URLStorage["8rewq78rqew"] = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
-	storage.URLStorage["lahfsdafnb4121l"] = "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)"
-	storage.URLStorage["3123123123123"] = "https://en.wikipedia.org/wiki/Hungarian_alphabet"
-	storage.URLStorage["KJFASSFASDJSJ"] = "https://en.wikipedia.org/wiki/Latin_alphabet"
-	*/
-
-	//var URLStorage storage.Repository
 	storage.URLStorage.Init()
 	storage.URLStorage.SetURLIntoStorage("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
 	storage.URLStorage.SetURLIntoStorage("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
