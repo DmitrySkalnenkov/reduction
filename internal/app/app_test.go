@@ -2,10 +2,11 @@ package app
 
 import (
 	"fmt"
+	"github.com/DmitrySkalnenkov/reduction/internal/storage"
 	"testing"
 )
 
-//(i2) Покройте сервис юнит-тестами. Сконцентрируйтесь на покрытии тестами эндпоинтов, чтобы защитить API сервиса от случайных изменений.
+// (i2) Покройте сервис юнит-тестами. Сконцентрируйтесь на покрытии тестами эндпоинтов, чтобы защитить API сервиса от случайных изменений.
 func TestRandomString(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -87,12 +88,14 @@ func TestTrimSlashes(t *testing.T) {
 }
 
 func TestReductURL(t *testing.T) {
-	var us = make(map[string]string)
+	//var us = make(map[string]string)
+	var ur storage.Repository
+	ur.Init()
 
 	type inputStruct struct {
 		url            string
 		shortURLLength int
-		urlStorage     map[string]string
+		urlStorage     *storage.Repository
 	}
 
 	tests := []struct {
@@ -105,7 +108,7 @@ func TestReductURL(t *testing.T) {
 			inputs: inputStruct{
 				url:            "http://google.com/qwertyuiopasdfghjkkllzxcvbnm",
 				shortURLLength: 10,
-				urlStorage:     us,
+				urlStorage:     &ur,
 			},
 			lenghtOfResult: 10,
 		},
@@ -114,7 +117,7 @@ func TestReductURL(t *testing.T) {
 			inputs: inputStruct{
 				url:            "http://google.com/qwertyuiopasdfghjkkllzxcvbnm",
 				shortURLLength: 15,
-				urlStorage:     us,
+				urlStorage:     &ur,
 			},
 			lenghtOfResult: 15,
 		},
@@ -123,7 +126,7 @@ func TestReductURL(t *testing.T) {
 			inputs: inputStruct{
 				url:            "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm",
 				shortURLLength: 15,
-				urlStorage:     us,
+				urlStorage:     &ur,
 			},
 			lenghtOfResult: 15,
 		},
@@ -132,7 +135,7 @@ func TestReductURL(t *testing.T) {
 			inputs: inputStruct{
 				url:            "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm",
 				shortURLLength: 15,
-				urlStorage:     us,
+				urlStorage:     &ur,
 			},
 			lenghtOfResult: 15,
 		},
@@ -144,9 +147,9 @@ func TestReductURL(t *testing.T) {
 		var ok bool
 
 		t.Run(tt.name, func(t *testing.T) {
-			resultStr = ReductURL(tt.inputs.url, tt.inputs.shortURLLength, tt.inputs.urlStorage)
+			resultStr = ReductURL(tt.inputs.url, tt.inputs.shortURLLength, *tt.inputs.urlStorage)
 			fmt.Printf("TEST_DEBUG: Shortened token is '%s' for URL '%s'.\n", resultStr, tt.inputs.url)
-			takenURL, ok = tt.inputs.urlStorage[resultStr]
+			takenURL, ok = tt.inputs.urlStorage.GetURLFromStorage(resultStr)
 			if len(resultStr) != tt.lenghtOfResult {
 				t.Errorf("TEST_ERROR: input url is %s, wanted lenght of the resul string is %d but the outpus string is %s", tt.inputs.url, tt.lenghtOfResult, resultStr)
 			} else if !ok {

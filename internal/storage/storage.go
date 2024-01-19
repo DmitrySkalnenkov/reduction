@@ -21,8 +21,8 @@ type Keeper interface {
 
 var URLStorage Repository
 
-//Return saved long URL from URL storage
-func (repo Repository) GetURLFromStorage(token string) (string, bool) {
+// Return saved long URL from URL storage
+func (repo *Repository) GetURLFromStorage(token string) (string, bool) {
 	url, ok := repo.urlMap[token]
 	if ok {
 		fmt.Printf("DEBUG: Found long URL with token '%s' is URL storage.\n", token)
@@ -33,17 +33,17 @@ func (repo Repository) GetURLFromStorage(token string) (string, bool) {
 	}
 }
 
-//Set value (long URL) into repository for this token(shortened URL)
-func (repo Repository) SetURLIntoStorage(token string, value string) {
+// Set value (long URL) into repository for this token(shortened URL)
+func (repo *Repository) SetURLIntoStorage(token string, value string) {
 	repo.urlMap[token] = value
 }
 
-//Initialization of Repository object
-func (repo Repository) Init() {
+// Initialization of Repository object
+func (repo *Repository) Init() {
 	repo.urlMap = make(map[string]string)
 }
 
-func (repo Repository) PrintMap() {
+func (repo *Repository) PrintMap() {
 	fmt.Println("")
 	fmt.Println("DEBUG: UrlStorage:")
 	for k, v := range repo.urlMap {
