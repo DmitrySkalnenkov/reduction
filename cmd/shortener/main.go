@@ -24,6 +24,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Post("/", handlers.PostHandler)
 	r.Get("/{id}", handlers.GetHandler)
+	r.Post("/api/shorten", handlers.PostShortenHandler) //(i4) Добавьте в сервер новый эндпоинт POST /api/shorten, принимающий в теле запроса JSON-объект {"url":"<some_url>"} и возвращающий в ответ объект {"result":"<shorten_url>"}.
 	r.NotFound(r.NotFoundHandler())
 	r.MethodNotAllowed(r.MethodNotAllowedHandler())
 

@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"regexp"
 
@@ -11,7 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-//POST handler
+// POST handler
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	storage.URLStorage.PrintMap() //for DEBUG
 	body, err := io.ReadAll(r.Body)
@@ -33,7 +35,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//GET handler
+// GET handler
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("DEBUG: UrlStorage:")
@@ -51,14 +53,14 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//Handler for not implemented requests
+// Handler for not implemented requests
 func NotImplementedHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("DEBUG: Only POST and GET request method supported.\n")
 	w.WriteHeader(http.StatusBadRequest) //code 400
 
 }
 
-//POST and GET handler (legacy)
+// POST and GET handler (legacy)
 func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 	storage.URLStorage.PrintMap() //for DEBUG
 	switch r.Method {
@@ -102,5 +104,27 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("DEBUG: Only POST and GET request method supported.\n")
 		w.WriteHeader(http.StatusBadRequest) //code 400
 		return
+	}
+}
+
+func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
+	storage.URLStorage.PrintMap() //for DEBUG
+	var curJSONMsg storage.JSONMessage
+	if r.Header.Get("Content-Type") == "application/json" && r.Method == http.MethodPost {
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&curJSONMsg)
+		if err != nil {
+			log.Printf("ERROR: JSON decoding occured, %s.\n", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		} else if curJSONMsg.Name != "" && curJSONMsg.Value != "" {
+			log.Printf("DEBUG: JSON body: name = '%s', value = %s.\n", curJSONMsg.Name, curJSONMsg.Value)
+			w.WriteHeader(http.StatusOK) //code 200
+			return
+		} else {
+			log.Printf("DEBUG: Wrong JSON body value.\n")
+			w.WriteHeader(http.StatusOK) //code 200
+			return
+		}
 	}
 }

@@ -6,6 +6,11 @@ import (
 
 //(i2) Cлой storage должен имплементировать интерфейс хранения, например repositories. Это понадобится вам для подмены хранилища моком в тестах и использования DI.
 
+type JSONMessage struct {
+	Name  string
+	Value string
+}
+
 type Repository struct {
 	urlMap map[string]string
 }

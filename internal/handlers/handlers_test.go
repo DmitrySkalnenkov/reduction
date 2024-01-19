@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -117,7 +118,6 @@ func TestPostAndGetHandler(t *testing.T) {
 		})
 	}
 }
-
 func TestPostHandler(t *testing.T) {
 	storage.URLStorage.Init()
 	storage.URLStorage.SetURLIntoStorage("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
@@ -265,6 +265,76 @@ func TestGetHandler(t *testing.T) {
 				if resultLocationFullURLStr != tt.want.respLocationHeaderStr {
 					t.Errorf("TEST_ERROR: Location header is '%s' but should be '%s'.\n", string(resultLocationFullURLStr), tt.want.respLocationHeaderStr)
 				}
+			}
+		})
+	}
+}
+func TestPostShortenHandler(t *testing.T) {
+	storage.URLStorage.Init()
+	storage.URLStorage.SetURLIntoStorage("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
+	storage.URLStorage.SetURLIntoStorage("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
+	storage.URLStorage.SetURLIntoStorage("lahfsdafnb4121l", "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)")
+	storage.URLStorage.SetURLIntoStorage("3123123123123", "https://en.wikipedia.org/wiki/Hungarian_alphabet")
+	storage.URLStorage.SetURLIntoStorage("KJFASSFASDJSJ", "https://en.wikipedia.org/wiki/Latin_alphabet")
+
+	type inputJSONStruct struct {
+		reqMethod      string
+		reqURL         string
+		reqContentType string
+		reqBody        string
+	}
+
+	type wantJSONStruct struct {
+		respCode        int
+		respContentType string
+		respBodyToken   string
+	}
+
+	tests := []struct {
+		name  string
+		input inputJSONStruct
+		want  wantJSONStruct
+	}{ //Test table
+		{
+			name: "Positive test 1. POST request",
+			input: inputJSONStruct{
+				reqMethod:      http.MethodPost,
+				reqURL:         "http://127.0.0.1:8080/",
+				reqContentType: "application/json",
+				reqBody:        `{"url":"https://go.dev/tour/moretypes/19"}`,
+			},
+			want: wantJSONStruct{
+				respCode:        http.StatusOK,
+				respContentType: "application/json",
+				respBodyToken:   "result",
+			},
+		},
+	}
+	for _, tt := range tests {
+		// запускаем каждый тест
+		t.Run(tt.name, func(t *testing.T) {
+			reqJSONBody, err := json.Marshal(tt.input.reqBody)
+			if err != nil {
+				t.Errorf("TEST_ERROR: '%s'.\n", err)
+			}
+			req := httptest.NewRequest(tt.input.reqMethod, tt.input.reqURL, bytes.NewReader(reqJSONBody))
+			req.Header.Set("Content-Type", tt.input.reqContentType)
+
+			w := httptest.NewRecorder()
+			h := http.HandlerFunc(PostShortenHandler)
+			h.ServeHTTP(w, req)
+			result := w.Result()
+			resultBody, err := io.ReadAll(result.Body)
+			if err != nil {
+				t.Errorf("TEST_ERROR: %s:", err)
+			}
+			fmt.Printf("TEST_DEBUG: Response body is '%s'.\n", string(resultBody))
+			defer result.Body.Close()
+
+			if result.StatusCode != tt.want.respCode {
+				t.Errorf("TEST_ERROR: Expected status code %d, got %d", tt.want.respCode, result.StatusCode)
+			} else if len(string(resultBody)) != len(app.HostURL)+app.ShortURLLength {
+				t.Errorf("TEST_ERROR: Wrong lenght of result (%d). Should be equal len(HostURL)+ShortURLLength (%d).\n", len(string(resultBody)), len(app.HostURL)+app.ShortURLLength)
 			}
 		})
 	}
