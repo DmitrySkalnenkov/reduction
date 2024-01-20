@@ -146,7 +146,7 @@ func TestReductURL(t *testing.T) {
 		var ok bool
 
 		t.Run(tt.name, func(t *testing.T) {
-			resultStr = ReductURL(tt.inputs.url, tt.inputs.shortURLLength, *tt.inputs.urlStorage)
+			resultStr = ReduceURL(tt.inputs.url, tt.inputs.shortURLLength, tt.inputs.urlStorage)
 			fmt.Printf("TEST_DEBUG: Shortened token is '%s' for URL '%s'.\n", resultStr, tt.inputs.url)
 			takenURL, ok = tt.inputs.urlStorage.GetURLFromStorage(resultStr)
 			if len(resultStr) != tt.lenghtOfResult {

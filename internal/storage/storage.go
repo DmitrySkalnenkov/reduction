@@ -10,7 +10,7 @@ type TxJSONMessage struct {
 	URL string `json:"url"`
 }
 type RxJSONMessage struct {
-	Result string `json:"result""`
+	Result string `json:"result"`
 }
 
 type Repository struct {
@@ -51,10 +51,11 @@ func (repo *Repository) Init() {
 }
 
 func (repo *Repository) PrintMap() {
-	fmt.Println("")
-	fmt.Println("DEBUG: UrlStorage:")
+	fmt.Println("VVVVVVVVVVVVVVVVVVVVVVVVVV")
+	fmt.Println("DEBUG: UrlStorage. Begin:")
 	for k, v := range repo.urlMap {
 		fmt.Println(k, "value is", v)
 	}
-	fmt.Println("")
+	fmt.Println("DEBUG: UrlStorage. End.")
+	fmt.Println("^^^^^^^^^^^^^^^^^^^^^^^^^^")
 }

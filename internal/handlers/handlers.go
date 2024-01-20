@@ -24,7 +24,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	bodyStr := string(body)
 	fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
 	w.WriteHeader(http.StatusCreated) //code 201
-	resp := app.ReductURL(bodyStr, app.ShortURLLength, storage.URLStorage)
+	resp := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
 	fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
 	storage.URLStorage.PrintMap() //for DEBUG
 	_, err = w.Write([]byte(app.HostURL + resp))
@@ -73,7 +73,7 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		bodyStr := string(body)
 		fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
 		w.WriteHeader(http.StatusCreated) //code 201
-		resp := app.ReductURL(bodyStr, app.ShortURLLength, storage.URLStorage)
+		resp := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
 		storage.URLStorage.PrintMap() //for DEBUG
 		fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
 		_, err = w.Write([]byte(app.HostURL + resp))
@@ -121,18 +121,23 @@ func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 		} else if curJSONMsg.URL != "" {
 			bodyStr := curJSONMsg.URL
 			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
-			resp := app.ReductURL(bodyStr, app.ShortURLLength, storage.URLStorage)
+			token := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
+			shortenURL := app.HostURL + token
 			storage.URLStorage.PrintMap() //for DEBUG
-			fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
-			respJSONMsg.Result = resp
+			fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", shortenURL)
+			respJSONMsg.Result = shortenURL
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusCreated) //code 201
 			json.NewEncoder(w).Encode(respJSONMsg)
 			return
 		} else {
-			log.Printf("DEBUG: Wrong JSON body value.\n")
+			log.Printf("DEBUG: Wrong JSON body value or not found URL in request body.\n")
 			w.WriteHeader(http.StatusNotFound) //code 404
 			return
 		}
+	} else {
+		log.Printf("DEBUG: Wrong JSON header or body value.\n")
+		w.WriteHeader(http.StatusBadRequest) //code 400
+		return
 	}
 }

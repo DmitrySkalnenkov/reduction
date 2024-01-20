@@ -250,8 +250,8 @@ func TestGetHandler(t *testing.T) {
 			if err != nil {
 				t.Errorf("TEST_ERROR: %s:", err)
 			}
-			fmt.Printf("TEST_DEBUG: Response body is '%s'.\n", string(resultBody))
 			defer result.Body.Close()
+			fmt.Printf("TEST_DEBUG: Response body is '%s'.\n", string(resultBody))
 			resultLocation, err = result.Location()
 			if err != nil {
 				fmt.Printf("TEST_DEBUG: Cannot get 'Location' from the response. Err - %s.\n", err)
@@ -306,7 +306,37 @@ func TestPostShortenHandler(t *testing.T) {
 				},
 			},
 			want: wantStruct{
-				respCode:        http.StatusOK,
+				respCode:        http.StatusCreated,
+				respContentType: "application/json",
+			},
+		},
+		{
+			name: "Negative test 1. Wrong header request",
+			input: inputStruct{
+				reqMethod:      http.MethodPost,
+				reqURL:         "http://127.0.0.1:8080/",
+				reqContentType: "application/xml",
+				reqJSONMsg: storage.TxJSONMessage{
+					URL: "http://google.com",
+				},
+			},
+			want: wantStruct{
+				respCode:        http.StatusBadRequest,
+				respContentType: "application/json",
+			},
+		},
+		{
+			name: "Negative test 1. Empty URL in JSON body",
+			input: inputStruct{
+				reqMethod:      http.MethodPost,
+				reqURL:         "http://127.0.0.1:8080/",
+				reqContentType: "application/json",
+				reqJSONMsg: storage.TxJSONMessage{
+					URL: "",
+				},
+			},
+			want: wantStruct{
+				respCode:        http.StatusNotFound,
 				respContentType: "application/json",
 			},
 		},
@@ -325,10 +355,18 @@ func TestPostShortenHandler(t *testing.T) {
 			h := http.HandlerFunc(PostShortenHandler)
 			h.ServeHTTP(w, req)
 			result := w.Result()
-			var resMsg storage.TxJSONMessage
-			err = json.NewDecoder(w.Body).Decode(&resMsg)
+			resultBody, err := io.ReadAll(result.Body)
 			if err != nil {
 				t.Errorf("TEST_ERROR: %s:", err)
+			}
+			fmt.Printf("TEST_DEBUG: Response body is '%s'.\n", string(resultBody))
+			defer result.Body.Close()
+			if result.Header.Get("Content-Type") == "application/json" {
+				var resMsg storage.TxJSONMessage
+				err = json.NewDecoder(w.Body).Decode(&resMsg)
+				if err != nil {
+					t.Errorf("TEST_ERROR: %s:", err)
+				}
 			}
 			//fmt.Printf("TEST_DEBUG: Response body: URL = '%s\n", resMsg.URL)
 			if result.StatusCode != tt.want.respCode {
