@@ -27,7 +27,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	resp := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
 	fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
 	storage.URLStorage.PrintMap() //for DEBUG
-	_, err = w.Write([]byte(app.HostURL + resp))
+	_, err = w.Write([]byte(app.BaseURLStr + resp))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -76,7 +76,7 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		resp := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
 		storage.URLStorage.PrintMap() //for DEBUG
 		fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
-		_, err = w.Write([]byte(app.HostURL + resp))
+		_, err = w.Write([]byte(app.BaseURLStr + resp))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -122,7 +122,7 @@ func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 			bodyStr := curJSONMsg.URL
 			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
 			token := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
-			shortenURL := app.HostURL + token
+			shortenURL := app.BaseURLStr + token
 			storage.URLStorage.PrintMap() //for DEBUG
 			fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", shortenURL)
 			respJSONMsg.Result = shortenURL

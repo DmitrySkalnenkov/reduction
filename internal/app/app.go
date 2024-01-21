@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base32"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/DmitrySkalnenkov/reduction/internal/storage"
@@ -11,10 +12,34 @@ import (
 
 const ShortURLLength = 15
 const (
-	HostPort string = ":8080"
-	HostAddr string = "localhost"
-	HostURL  string = "http://" + HostAddr + HostPort + "/"
+	DefaultHostPort string = ":8080"
+	DefaultHostAddr string = "localhost"
+	HostURL         string = "http://" + DefaultHostAddr + DefaultHostPort + "/"
 )
+
+var HostPortStr string
+var BaseURLStr string
+
+// (i5) Добавьте возможность конфигурировать сервис с помощью переменных окружения:
+// Get enviroment variables SERVER_ADDRESS and BASE_URL check values and set them to global variables HostPortStr and BaseURLStr
+func GetEnv() {
+	envHostAddr, isEnvHostAddr := os.LookupEnv("SERVER_ADDRESS") //(i5) адрес запуска HTTP-сервера с помощью переменной SERVER_ADDRESS (видимо адрес и порт)
+	if isEnvHostAddr && envHostAddr != "" {
+		HostPortStr = envHostAddr //+ DefaultHostPort
+		fmt.Printf("DEBUG: Found SERVER_ADDRESS enviroment variable '%s', HostPortStr = '%s'\n", envHostAddr, HostPortStr)
+	} else {
+		HostPortStr = DefaultHostAddr + DefaultHostPort //(i1) Сервер должен быть доступен по адресу: http://localhost:8080.
+		fmt.Printf("DEBUG: Will be used default host and port, HostPortStr = '%s'\n", HostPortStr)
+	}
+	envBaseURL, isEnvBaseURL := os.LookupEnv("BASE_URL") //(i5) базовый адрес результирующего сокращённого URL с помощью переменной BASE_URL.
+	if isEnvBaseURL && envBaseURL != "" {
+		BaseURLStr = envBaseURL + "/"
+		fmt.Printf("DEBUG: Found BASE_URL enviroment variable  '%s', BaseURLStr = '%s'\n", envBaseURL, BaseURLStr)
+	} else {
+		BaseURLStr = "http://" + HostPortStr + "/"
+		fmt.Printf("DEBUG: Will be used default BaseURLStr = '%s'\n", BaseURLStr)
+	}
+}
 
 func randomString(length int) string {
 	randomBytes := make([]byte, 32)
