@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/DmitrySkalnenkov/reduction/internal/storage"
+	"os"
 	"testing"
 )
 
@@ -155,6 +156,85 @@ func TestReductURL(t *testing.T) {
 				t.Errorf("TEST_ERROR: Token for URL '%s' didn't save into URL storage.\n", tt.inputs.url)
 			} else if takenURL != tt.inputs.url {
 				t.Errorf("TEST_ERROR: Gotten URL from the storage ('%s') doesn't match with input URL (%s).\n", resultStr, tt.inputs.url)
+			}
+		})
+	}
+}
+
+func TestGetEnv(t *testing.T) {
+	type inputStruct struct {
+		serverAddressValue string
+		baseURLValue       string
+	}
+
+	type wantStruct struct {
+		hostPortStr string
+		baseURLStr  string
+	}
+
+	tests := []struct {
+		name   string
+		inputs inputStruct
+		wants  wantStruct
+	}{ //Test table
+		{
+			name: "Positive test 1. Usual address and URL (localhost)",
+			inputs: inputStruct{
+				serverAddressValue: "127.0.0.1:8080",
+				baseURLValue:       "http://google.com:5555",
+			},
+			wants: wantStruct{
+				hostPortStr: "127.0.0.1:8080",
+				baseURLStr:  "http://google.com:5555/",
+			},
+		},
+		{
+			name: "Positive test 2. Usual address and URL (127.0.0.1)",
+			inputs: inputStruct{
+				serverAddressValue: "localhost:9999",
+				baseURLValue:       "http://yandex.ru",
+			},
+			wants: wantStruct{
+				hostPortStr: "localhost:9999",
+				baseURLStr:  "http://yandex.ru/",
+			},
+		},
+		{
+			name: "Positive test 3. Empty address",
+			inputs: inputStruct{
+				serverAddressValue: "",
+				baseURLValue:       "http://yandex.ru",
+			},
+			wants: wantStruct{
+				hostPortStr: "localhost:8080",
+				baseURLStr:  "http://yandex.ru/",
+			},
+		},
+		{
+			name: "Positive test 4. Empty BaseURL",
+			inputs: inputStruct{
+				serverAddressValue: "localhost:8090",
+				baseURLValue:       "",
+			},
+			wants: wantStruct{
+				hostPortStr: "localhost:8090",
+				baseURLStr:  "http://localhost:8090/",
+			},
+		},
+	}
+	for _, tt := range tests {
+		// запускаем каждый тест
+		t.Run(tt.name, func(t *testing.T) {
+			os.Setenv("SERVER_ADDRESS", tt.inputs.serverAddressValue)
+			os.Setenv("BASE_URL", tt.inputs.baseURLValue)
+			GetEnv()
+			fmt.Printf("TEST_DEBUG: SERVER_ADDRESS enviroment variable is set to '%s'\n", tt.inputs.serverAddressValue)
+			fmt.Printf("TEST_DEBUG: BASE_URL enviroment variable is set to '%s'\n", tt.inputs.baseURLValue)
+
+			if HostPortStr != tt.wants.hostPortStr {
+				t.Errorf("TEST_ERROR: Global var HostPortStr '%s' is not equal wants.hostPortStr '%s'.\n", HostPortStr, tt.wants.hostPortStr)
+			} else if BaseURLStr != tt.wants.baseURLStr {
+				t.Errorf("TEST_ERROR: Global var BaseURLStr '%s' is not equal wants.BaseURLStr '%s'.\n", BaseURLStr, tt.wants.baseURLStr)
 			}
 		})
 	}
