@@ -12,13 +12,15 @@ import (
 
 const ShortURLLength = 15
 const (
-	DefaultHostPort string = ":8080"
-	DefaultHostAddr string = "localhost"
-	HostURL         string = "http://" + DefaultHostAddr + DefaultHostPort + "/"
+	DefaultHostPort     string = ":8080"
+	DefaultHostAddr     string = "localhost"
+	HostURL             string = "http://" + DefaultHostAddr + DefaultHostPort + "/"
+	DefaultRepoFilePath string = "/tmp/temp_repository_file.json"
 )
 
 var HostPortStr string
 var BaseURLStr string
+var RepoFilePathStr string
 
 // (i5) Добавьте возможность конфигурировать сервис с помощью переменных окружения:
 // Get enviroment variables SERVER_ADDRESS and BASE_URL check values and set them to global variables HostPortStr and BaseURLStr
@@ -38,6 +40,14 @@ func GetEnv() {
 	} else {
 		BaseURLStr = "http://" + HostPortStr + "/"
 		fmt.Printf("DEBUG: Will be used default BaseURLStr = '%s'\n", BaseURLStr)
+	}
+	envRepoFilePath, isRepoFilePath := os.LookupEnv("FILE_STORAGE_PATH") // (i6) Путь до файла должен передаваться в переменной окружения FILE_STORAGE_PATH
+	if isRepoFilePath && envRepoFilePath != "" {
+		RepoFilePathStr = envRepoFilePath
+		fmt.Printf("DEBUG: Found FILE_STORAGE_PATH enviroment variable  '%s', RepoFilePathStr = '%s'\n", envBaseURL, BaseURLStr)
+	} else {
+		RepoFilePathStr = "" //(i6) При отсутствии переменной окружения или при её пустом значении вернитесь к хранению сокращённых URL в памяти.
+		fmt.Printf("DEBUG: FILE_STORAGE_PATH enviroment variable doesn't set. Storing data into file is blocked.\n")
 	}
 }
 
@@ -68,6 +78,9 @@ func ReduceURL(url string, shortURLLength int, pr *storage.Repository) string {
 		if !ok {
 			//urlStorage[shortURL] = url
 			pr.SetURLIntoStorage(shortURL, url)
+			if RepoFilePathStr != "" {
+				pr.DumpRepositoryToJSONFile(RepoFilePathStr)
+			}
 			return shortURL
 		}
 		shortURL = randomString(shortURLLength)

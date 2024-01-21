@@ -23,6 +23,7 @@ func main() {
 	r.NotFound(r.NotFoundHandler())
 	r.MethodNotAllowed(r.MethodNotAllowedHandler())
 
+	storage.URLStorage.RestoreRepositoryFromJSONFile(app.DefaultRepoFilePath)
 	s := &http.Server{
 		Addr: app.HostPortStr,
 	}

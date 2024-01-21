@@ -135,3 +135,47 @@ func TestSetURLIntoStorage(t *testing.T) {
 		})
 	}
 }
+
+func TestDumpRepositoryToJSONFile(t *testing.T) {
+	var ur1 Repository
+	var ur2 Repository
+	ur1.Init()
+	ur2.Init()
+	ur1.urlMap["qwerfadsfd"] = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
+	ur1.urlMap["8rewq78rqew"] = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
+	ur1.urlMap["lahfsdafnb4121l"] = "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)"
+	ur1.urlMap["3123123123123"] = "https://en.wikipedia.org/wiki/Hungarian_alphabet"
+	ur1.urlMap["KJFASSFASDJSJ"] = "https://en.wikipedia.org/wiki/Latin_alphabet"
+
+	type inputStruct struct {
+		filePath   string
+		urlStorage Repository
+	}
+	type wantStruct struct {
+		urlStorage Repository
+	}
+
+	tests := []struct {
+		name   string
+		inputs inputStruct
+	}{ //Test table
+		{
+			name: "Positive test.",
+			inputs: inputStruct{
+				filePath:   "/tmp/temp_repository_file.txt",
+				urlStorage: ur1,
+			},
+		},
+	}
+	for _, tt := range tests {
+		// запускаем каждый тест
+		t.Run(tt.name, func(t *testing.T) {
+			tt.inputs.urlStorage.PrintMap()
+			tt.inputs.urlStorage.DumpRepositoryToJSONFile(tt.inputs.filePath)
+			fmt.Printf("TEST_DEBUG: Repository was dumped into the file '%s'.\n", tt.inputs.filePath)
+			ur2.PrintMap()
+			ur2.RestoreRepositoryFromJSONFile(tt.inputs.filePath)
+			ur2.PrintMap()
+		})
+	}
+}

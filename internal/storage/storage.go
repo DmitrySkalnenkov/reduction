@@ -1,7 +1,10 @@
 package storage
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 )
 
 //(i2) Cлой storage должен имплементировать интерфейс хранения, например repositories. Это понадобится вам для подмены хранилища моком в тестах и использования DI.
@@ -58,4 +61,50 @@ func (repo *Repository) PrintMap() {
 	}
 	fmt.Println("DEBUG: UrlStorage. End.")
 	fmt.Println("^^^^^^^^^^^^^^^^^^^^^^^^^^")
+}
+
+func (repo *Repository) DumpRepositoryToJSONFile(filePath string) {
+	if filePath != "" {
+		repoFile, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
+		if err != nil {
+			fmt.Printf("ERROR: Cannot open repository file '%s' for dumping .\n", filePath)
+		}
+		defer repoFile.Close()
+		if len(repo.urlMap) > 0 {
+			toFile, err := json.Marshal(repo.urlMap)
+			if err != nil {
+				fmt.Printf("ERROR: Cannot marshal repo.urlMap '%v' to JSON.\n", repo.urlMap)
+			}
+			repoFile.Truncate(0)
+			repoFile.Seek(0, 0)
+			_, err = repoFile.WriteString(string(toFile))
+			if err == nil {
+				fmt.Printf("INFO: URL repository dumped into the file '%s'.\n", filePath)
+			} else {
+				fmt.Printf("ERROR: Cannot dump JSON string '%s' to file '%s'.\n", string(toFile), filePath)
+			}
+		}
+	}
+}
+
+func (repo *Repository) RestoreRepositoryFromJSONFile(filePath string) {
+	if filePath != "" {
+		repoFile, err := os.OpenFile(filePath, os.O_RDONLY, 0777)
+		if err != nil {
+			fmt.Printf("ERROR: Cannot open repository file '%s' for restoring.\n", filePath)
+		}
+		defer repoFile.Close()
+		fromFile, err := io.ReadAll(repoFile)
+		if err != nil {
+			fmt.Printf("ERROR: Cannot read data from repository file '%s'.\n", filePath)
+		}
+		var tmpRepo Repository
+		err = json.Unmarshal(fromFile, &tmpRepo.urlMap)
+		if err == nil {
+			fmt.Printf("INFO: Data from repository file were restored succesfully.\n")
+			*repo = tmpRepo
+		} else {
+			fmt.Printf("ERROR: '%s'. Data from file '%s' cannot be restored.\n", err, filePath)
+		}
+	}
 }
