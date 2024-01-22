@@ -12,7 +12,10 @@ import (
 
 // (i1) Сервер должен предоставлять два эндпоинта: POST / и GET /{id}
 func main() {
-	app.GetEnv()
+	var sp app.ServerParameters
+	sp.GetEnvs()
+	sp.GetFlags()
+	sp.CheckParamPriority()
 	storage.URLStorage.Init()
 	//http.HandleFunc("/", app.PostAndGetHandler) // (i3) Вы написали приложение с помощью стандартной библиотеки net/http. Используя любой пакет(роутер или фреймворк), совместимый с net/http, перепишите ваш код.
 	r := chi.NewRouter()
@@ -25,7 +28,7 @@ func main() {
 
 	storage.URLStorage.RestoreRepositoryFromJSONFile(app.DefaultRepoFilePath)
 	s := &http.Server{
-		Addr: app.HostPortStr,
+		Addr: app.HostSocketAddrStr,
 	}
 	s.Handler = r
 	log.Fatal(s.ListenAndServe())

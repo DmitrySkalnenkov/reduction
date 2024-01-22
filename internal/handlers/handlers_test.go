@@ -108,7 +108,7 @@ func TestPostAndGetHandler(t *testing.T) {
 			}
 			if result.StatusCode != tt.want.respCode {
 				t.Errorf("TEST_ERROR: Expected status code %d, got %d", tt.want.respCode, result.StatusCode)
-			} else if tt.input.reqMethod == http.MethodPost && len(string(resultBody)) != len(app.BaseURLStr)+app.ShortURLLength {
+			} else if tt.input.reqMethod == http.MethodPost && len(string(resultBody)) != len(app.BaseURLStr)+len("/")+app.ShortURLLength {
 				t.Errorf("TEST_ERROR: Wrong lenght of result (%d). Should be equal len(BaseURLStr)+ShortURLLength (%d).\n", len(string(resultBody)), len(app.BaseURLStr)+app.ShortURLLength)
 			} else if tt.input.reqMethod == http.MethodGet && resultLocation != nil {
 				if resultLocationFullURLStr != tt.want.respLocationHeaderStr {
@@ -176,8 +176,8 @@ func TestPostHandler(t *testing.T) {
 
 			if result.StatusCode != tt.want.respCode {
 				t.Errorf("TEST_ERROR: Expected status code %d, got %d", tt.want.respCode, result.StatusCode)
-			} else if len(string(resultBody)) != len(app.BaseURLStr)+app.ShortURLLength {
-				t.Errorf("TEST_ERROR: Wrong lenght of result (%d). Should be equal len(HostURL)+ShortURLLength (%d).\n", len(string(resultBody)), len(app.HostURL)+app.ShortURLLength)
+			} else if len(string(resultBody)) != len(app.BaseURLStr)+len("/")+app.ShortURLLength {
+				t.Errorf("TEST_ERROR: Wrong lenght of result (%d). Should be equal len(DefaultHostURL)+ShortURLLength (%d).\n", len(string(resultBody)), len(app.DefaultHostURL)+app.ShortURLLength)
 			}
 		})
 	}
