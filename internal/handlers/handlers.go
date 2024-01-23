@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,10 +14,35 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+type gzipWriter struct {
+	http.ResponseWriter
+	Writer io.Writer
+}
+
+func (w gzipWriter) Write(b []byte) (int, error) {
+	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
+	return w.Writer.Write(b)
+}
+
 // POST handler
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	storage.URLStorage.PrintMap() //for DEBUG
-	body, err := io.ReadAll(r.Body)
+	var reader io.Reader
+
+	if r.Header.Get("Content-Encoding") == "gzip" {
+		gz, err := gzip.NewReader(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			fmt.Printf("ERROR: %v", err)
+			return
+		}
+		reader = gz
+		defer gz.Close()
+	} else {
+		reader = r.Body
+	}
+
+	body, err := io.ReadAll(reader)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -49,6 +75,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Printf("DEBUG: Long URL with id '%s' not found in URL storage.\n", id)
 	}
+	w.Header().Set("Accept-Encoding", "gzip")
 	w.WriteHeader(http.StatusTemporaryRedirect) //code 307
 
 }
