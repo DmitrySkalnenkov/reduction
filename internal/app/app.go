@@ -104,13 +104,13 @@ func TrimSlashes(slashedStr string) string {
 }
 
 // ReduceURL() reduce long URL to token, save token as key and URL as value into URLStorage, return token.
-func ReduceURL(url string, shortURLLength int, pr *storage.Repository) string {
+func ReduceURL(url string, shortURLLength int, pr *storage.MemRepo) string {
 	shortURL := randomString(shortURLLength)
 	for {
-		_, ok := pr.GetURLFromStorage(shortURL)
+		_, ok := pr.GetURLFromRepo(shortURL)
 		if !ok {
 			//urlStorage[shortURL] = url
-			pr.SetURLIntoStorage(shortURL, url)
+			pr.SetURLIntoRepo(shortURL, url)
 			if RepoFilePathStr != "" {
 				pr.DumpRepositoryToJSONFile(RepoFilePathStr)
 			}

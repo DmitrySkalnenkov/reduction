@@ -89,13 +89,13 @@ func TestTrimSlashes(t *testing.T) {
 }
 
 func TestReductURL(t *testing.T) {
-	var ur storage.Repository
-	ur.Init()
+	var ur storage.MemRepo
+	ur.InitRepo()
 
 	type inputStruct struct {
 		url            string
 		shortURLLength int
-		urlStorage     *storage.Repository
+		urlStorage     *storage.MemRepo
 	}
 
 	tests := []struct {
@@ -149,7 +149,7 @@ func TestReductURL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			resultStr = ReduceURL(tt.inputs.url, tt.inputs.shortURLLength, tt.inputs.urlStorage)
 			fmt.Printf("TEST_DEBUG: Shortened token is '%s' for URL '%s'.\n", resultStr, tt.inputs.url)
-			takenURL, ok = tt.inputs.urlStorage.GetURLFromStorage(resultStr)
+			takenURL, ok = tt.inputs.urlStorage.GetURLFromRepo(resultStr)
 			if len(resultStr) != tt.lenghtOfResult {
 				t.Errorf("TEST_ERROR: input url is %s, wanted lenght of the resul string is %d but the outpus string is %s", tt.inputs.url, tt.lenghtOfResult, resultStr)
 			} else if !ok {

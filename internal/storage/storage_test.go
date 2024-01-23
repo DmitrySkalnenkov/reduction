@@ -2,13 +2,14 @@ package storage
 
 import (
 	"fmt"
+	"os"
 
 	"testing"
 )
 
 func TestGetURLFromStorage(t *testing.T) {
-	var ur Repository
-	ur.Init()
+	var ur MemRepo
+	ur.InitRepo()
 
 	ur.urlMap["qwerfadsfd"] = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
 	ur.urlMap["8rewq78rqew"] = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
@@ -19,7 +20,7 @@ func TestGetURLFromStorage(t *testing.T) {
 	type inputStruct struct {
 		id string
 		//urlStorage map[string]string
-		urlStorage Repository
+		urlStorage MemRepo
 	}
 
 	tests := []struct {
@@ -70,7 +71,7 @@ func TestGetURLFromStorage(t *testing.T) {
 		var resultStr string
 		var ok bool
 		t.Run(tt.name, func(t *testing.T) {
-			resultStr, ok = tt.inputs.urlStorage.GetURLFromStorage(tt.inputs.id)
+			resultStr, ok = tt.inputs.urlStorage.GetURLFromRepo(tt.inputs.id)
 			fmt.Printf("TEST_DEBUG: For token '%s' returned URL is '%s'.\n", resultStr, tt.inputs.id)
 			if resultStr != tt.resultStr && ok != tt.ok {
 				t.Errorf("TEST_ERROR: Returned  from storage string '%s'  for token '%s' doesn't match with stored one '%s', or ok value (%t) unexpected.\n", resultStr, tt.inputs.id, tt.resultStr, ok)
@@ -80,8 +81,8 @@ func TestGetURLFromStorage(t *testing.T) {
 }
 
 func TestSetURLIntoStorage(t *testing.T) {
-	var ur Repository
-	ur.Init()
+	var ur MemRepo
+	ur.InitRepo()
 
 	ur.urlMap["qwerfadsfd"] = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
 	ur.urlMap["8rewq78rqew"] = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
@@ -89,7 +90,7 @@ func TestSetURLIntoStorage(t *testing.T) {
 	type inputStruct struct {
 		token      string
 		value      string
-		urlStorage Repository
+		urlStorage MemRepo
 	}
 
 	tests := []struct {
@@ -126,9 +127,9 @@ func TestSetURLIntoStorage(t *testing.T) {
 		var isValueExist bool
 		var resultURL string
 		t.Run(tt.name, func(t *testing.T) {
-			tt.inputs.urlStorage.SetURLIntoStorage(tt.inputs.token, tt.inputs.value)
-			fmt.Printf("TEST_DEBUG: For SetURLIntoStorage set token '%s' with URL '%s' into URLStorage.\n", tt.inputs.token, tt.inputs.value)
-			resultURL, isValueExist = tt.inputs.urlStorage.GetURLFromStorage(tt.inputs.token)
+			tt.inputs.urlStorage.SetURLIntoRepo(tt.inputs.token, tt.inputs.value)
+			fmt.Printf("TEST_DEBUG: For SetURLIntoRepo set token '%s' with URL '%s' into URLStorage.\n", tt.inputs.token, tt.inputs.value)
+			resultURL, isValueExist = tt.inputs.urlStorage.GetURLFromRepo(tt.inputs.token)
 			if resultURL != tt.inputs.value && !isValueExist {
 				t.Errorf("TEST_ERROR: URL '%s' for token '%s' doesn't set correctly into the URLStorage.\n", resultURL, tt.inputs.token)
 			}
@@ -137,10 +138,10 @@ func TestSetURLIntoStorage(t *testing.T) {
 }
 
 func TestDumpRepositoryToJSONFile(t *testing.T) {
-	var ur1 Repository
-	var ur2 Repository
-	ur1.Init()
-	ur2.Init()
+	var ur1 MemRepo
+	var ur2 MemRepo
+	ur1.InitRepo()
+	ur2.InitRepo()
 	ur1.urlMap["qwerfadsfd"] = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
 	ur1.urlMap["8rewq78rqew"] = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
 	ur1.urlMap["lahfsdafnb4121l"] = "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)"
@@ -149,10 +150,10 @@ func TestDumpRepositoryToJSONFile(t *testing.T) {
 
 	type inputStruct struct {
 		filePath   string
-		urlStorage Repository
+		urlStorage MemRepo
 	}
 	type wantStruct struct {
-		urlStorage Repository
+		urlStorage MemRepo
 	}
 
 	tests := []struct {
@@ -170,12 +171,29 @@ func TestDumpRepositoryToJSONFile(t *testing.T) {
 	for _, tt := range tests {
 		// запускаем каждый тест
 		t.Run(tt.name, func(t *testing.T) {
-			tt.inputs.urlStorage.PrintMap()
+			tt.inputs.urlStorage.PrintRepo()
 			tt.inputs.urlStorage.DumpRepositoryToJSONFile(tt.inputs.filePath)
-			fmt.Printf("TEST_DEBUG: Repository was dumped into the file '%s'.\n", tt.inputs.filePath)
-			ur2.PrintMap()
+			fmt.Printf("TEST_DEBUG: MemRepo was dumped into the file '%s'.\n", tt.inputs.filePath)
+			ur2.PrintRepo()
 			ur2.RestoreRepositoryFromJSONFile(tt.inputs.filePath)
-			ur2.PrintMap()
+			ur2.PrintRepo()
 		})
 	}
+}
+
+func TestFileRepo_InitRepo(t *testing.T) {
+	var ur FileRepo
+	filePath := "/tmp/testFileRepo.txt"
+	ur.InitRepo(filePath)
+	_, err := os.Stat(filePath)
+	if err != nil {
+		t.Errorf("TEST_ERROR: Cannot init file with path '%s'.\n", filePath)
+	}
+}
+
+func TestFileRepo_PrintRepo(t *testing.T) {
+	var ur FileRepo
+	filePath := "/tmp/testFileRepo.txt"
+	ur.InitRepo(filePath)
+	ur.PrintRepo()
 }

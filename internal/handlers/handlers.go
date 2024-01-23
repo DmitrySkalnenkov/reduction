@@ -14,19 +14,19 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type gzipWriter struct {
+type gzWriter struct {
 	http.ResponseWriter
 	Writer io.Writer
 }
 
-func (w gzipWriter) Write(b []byte) (int, error) {
+func (w gzWriter) Write(b []byte) (int, error) {
 	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
 	return w.Writer.Write(b)
 }
 
 // POST handler
 func PostHandler(w http.ResponseWriter, r *http.Request) {
-	storage.URLStorage.PrintMap() //for DEBUG
+	storage.URLStorage.PrintRepo() //for DEBUG
 	var reader io.Reader
 
 	if r.Header.Get("Content-Encoding") == "gzip" {
@@ -52,7 +52,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated) //code 201
 	resp := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
 	fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
-	storage.URLStorage.PrintMap() //for DEBUG
+	storage.URLStorage.PrintRepo() //for DEBUG
 	_, err = w.Write([]byte(app.BaseURLStr + "/" + resp))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -65,10 +65,10 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("DEBUG: UrlStorage:")
-	storage.URLStorage.PrintMap()
+	storage.URLStorage.PrintRepo()
 	id := chi.URLParam(r, "id")
 	fmt.Printf("DEBUG: Token of shortened URL is '%s'.\n", id)
-	longURL, ok := storage.URLStorage.GetURLFromStorage(id)
+	longURL, ok := storage.URLStorage.GetURLFromRepo(id)
 	if longURL != "" && ok {
 		fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURL)
 		w.Header().Set("Location", longURL)
@@ -89,7 +89,7 @@ func NotImplementedHandler(w http.ResponseWriter, r *http.Request) {
 
 // POST and GET handler (legacy)
 func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
-	storage.URLStorage.PrintMap() //for DEBUG
+	storage.URLStorage.PrintRepo() //for DEBUG
 	switch r.Method {
 	case http.MethodPost: //(i1) Эндпоинт POST / принимает в теле запроса строку URL для сокращения и возвращает ответ с кодом 201 и сокращённым URL в виде текстовой строки в теле.
 		body, err := io.ReadAll(r.Body)
@@ -101,7 +101,7 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
 		w.WriteHeader(http.StatusCreated) //code 201
 		resp := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
-		storage.URLStorage.PrintMap() //for DEBUG
+		storage.URLStorage.PrintRepo() //for DEBUG
 		fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
 		_, err = w.Write([]byte(app.BaseURLStr + "/" + resp))
 		if err != nil {
@@ -117,7 +117,7 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("DEBUG: Token of shortened URL is '%s'.\n", id)
 		if matched && (err == nil) {
 			fmt.Printf("DEBUG: Got URL id with lenght %d. URL id = '%s' .\n", app.ShortURLLength, id)
-			longURL, ok := storage.URLStorage.GetURLFromStorage(id)
+			longURL, ok := storage.URLStorage.GetURLFromRepo(id)
 			if longURL != "" && ok {
 				fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURL)
 				w.Header().Set("Location", longURL)
@@ -135,7 +135,7 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
-	storage.URLStorage.PrintMap() //for DEBUG
+	storage.URLStorage.PrintRepo() //for DEBUG
 	var curJSONMsg storage.TxJSONMessage
 	var respJSONMsg storage.RxJSONMessage
 	if r.Header.Get("Content-Type") == "application/json" && r.Method == http.MethodPost {
@@ -150,7 +150,7 @@ func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
 			token := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
 			shortenURL := app.BaseURLStr + "/" + token
-			storage.URLStorage.PrintMap() //for DEBUG
+			storage.URLStorage.PrintRepo() //for DEBUG
 			fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", shortenURL)
 			respJSONMsg.Result = shortenURL
 			w.Header().Set("Content-Type", "application/json")

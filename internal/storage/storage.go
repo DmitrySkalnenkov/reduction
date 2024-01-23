@@ -16,23 +16,25 @@ type RxJSONMessage struct {
 	Result string `json:"result"`
 }
 
-type Repository struct {
+type MemRepo struct {
 	urlMap map[string]string
 }
 
-type Keeper interface {
-	GetURLFromStorage(token string) (string, bool)
-	SetURLIntoStorage(token string, value string)
-	InitMap()
-	PrintMap()
+type FileRepo struct {
+	urlFile *os.File
 }
 
-//var URLStorage map[string]string //Storage for shortened URL
+type Keeper interface {
+	GetURLFromRepo(token string) (string, bool)
+	SetURLIntoRepo(token string, value string)
+	InitRepo()
+	PrintRepo()
+}
 
-var URLStorage Repository
+var URLStorage MemRepo
 
 // Return saved long URL from URL storage
-func (repo *Repository) GetURLFromStorage(token string) (string, bool) {
+func (repo *MemRepo) GetURLFromRepo(token string) (string, bool) {
 	url, ok := repo.urlMap[token]
 	if ok {
 		fmt.Printf("DEBUG: Found long URL with token '%s' is URL storage.\n", token)
@@ -44,16 +46,16 @@ func (repo *Repository) GetURLFromStorage(token string) (string, bool) {
 }
 
 // Set value (long URL) into repository for this token(shortened URL)
-func (repo *Repository) SetURLIntoStorage(token string, value string) {
+func (repo *MemRepo) SetURLIntoRepo(token string, value string) {
 	repo.urlMap[token] = value
 }
 
-// Initialization of Repository object
-func (repo *Repository) Init() {
+// Initialization of MemRepo object
+func (repo *MemRepo) InitRepo() {
 	repo.urlMap = make(map[string]string)
 }
 
-func (repo *Repository) PrintMap() {
+func (repo *MemRepo) PrintRepo() {
 	fmt.Println("VVVVVVVVVVVVVVVVVVVVVVVVVV")
 	fmt.Println("DEBUG: UrlStorage. Begin:")
 	for k, v := range repo.urlMap {
@@ -63,7 +65,27 @@ func (repo *Repository) PrintMap() {
 	fmt.Println("^^^^^^^^^^^^^^^^^^^^^^^^^^")
 }
 
-func (repo *Repository) DumpRepositoryToJSONFile(filePath string) {
+// InitRepo() Initialization file repository
+func (repo *FileRepo) InitRepo(filePath string) {
+	if filePath != "" {
+		var err error
+		repo.urlFile, err = os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
+		if err != nil {
+			fmt.Printf("ERROR: Cannot open repository file '%s' for dumping .\n", filePath)
+		}
+		defer repo.urlFile.Close()
+	}
+}
+
+func (repo *FileRepo) PrintRepo() {
+	dataFromFile, err := io.ReadAll(repo.urlFile)
+	if err != nil {
+		fmt.Printf("ERROR: Filed get data from repo file.\n")
+	}
+	fmt.Print(dataFromFile)
+}
+
+func (repo *MemRepo) DumpRepositoryToJSONFile(filePath string) {
 	if filePath != "" {
 		repoFile, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
 		if err != nil {
@@ -87,7 +109,7 @@ func (repo *Repository) DumpRepositoryToJSONFile(filePath string) {
 	}
 }
 
-func (repo *Repository) RestoreRepositoryFromJSONFile(filePath string) {
+func (repo *MemRepo) RestoreRepositoryFromJSONFile(filePath string) {
 	if filePath != "" {
 		repoFile, err := os.OpenFile(filePath, os.O_RDONLY, 0777)
 		if err != nil {
@@ -98,7 +120,7 @@ func (repo *Repository) RestoreRepositoryFromJSONFile(filePath string) {
 		if err != nil {
 			fmt.Printf("ERROR: Cannot read data from repository file '%s'.\n", filePath)
 		}
-		var tmpRepo Repository
+		var tmpRepo MemRepo
 		err = json.Unmarshal(fromFile, &tmpRepo.urlMap)
 		if err == nil {
 			fmt.Printf("INFO: Data from repository file were restored succesfully.\n")

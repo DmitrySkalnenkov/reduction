@@ -16,7 +16,7 @@ func main() {
 	sp.GetEnvs()
 	sp.GetFlags()
 	sp.CheckParamPriority()
-	storage.URLStorage.Init()
+	storage.URLStorage.InitRepo()
 	//http.HandleFunc("/", app.PostAndGetHandler) // (i3) Вы написали приложение с помощью стандартной библиотеки net/http. Используя любой пакет(роутер или фреймворк), совместимый с net/http, перепишите ваш код.
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
