@@ -112,7 +112,7 @@ func ReduceURL(url string, shortURLLength int, pr *storage.MemRepo) string {
 			//urlStorage[shortURL] = url
 			pr.SetURLIntoRepo(shortURL, url)
 			if RepoFilePathStr != "" {
-				pr.DumpRepositoryToJSONFile(RepoFilePathStr)
+				//pr.DumpRepoToJSONFile(RepoFilePathStr)
 			}
 			return shortURL
 		}

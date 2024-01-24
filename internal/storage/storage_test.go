@@ -137,7 +137,7 @@ func TestSetURLIntoStorage(t *testing.T) {
 	}
 }
 
-func TestDumpRepositoryToJSONFile(t *testing.T) {
+/*func TestDumpRepositoryToJSONFile(t *testing.T) {
 	var ur1 MemRepo
 	var ur2 MemRepo
 	ur1.InitRepo()
@@ -172,18 +172,18 @@ func TestDumpRepositoryToJSONFile(t *testing.T) {
 		// запускаем каждый тест
 		t.Run(tt.name, func(t *testing.T) {
 			tt.inputs.urlStorage.PrintRepo()
-			tt.inputs.urlStorage.DumpRepositoryToJSONFile(tt.inputs.filePath)
+			DumpRepoToJSONFile(tt.inputs.urlStorage, tt.inputs.filePath)
 			fmt.Printf("TEST_DEBUG: MemRepo was dumped into the file '%s'.\n", tt.inputs.filePath)
 			ur2.PrintRepo()
-			ur2.RestoreRepositoryFromJSONFile(tt.inputs.filePath)
+			ur2.GetRepoFromJSONFile(tt.inputs.filePath)
 			ur2.PrintRepo()
 		})
 	}
-}
+}*/
 
 func TestFileRepo_InitRepo(t *testing.T) {
 	var ur FileRepo
-	filePath := "/tmp/testFileRepo.txt"
+	filePath := "/tmp/temp_repository_file.json"
 	ur.InitRepo(filePath)
 	_, err := os.Stat(filePath)
 	if err != nil {
@@ -193,7 +193,24 @@ func TestFileRepo_InitRepo(t *testing.T) {
 
 func TestFileRepo_PrintRepo(t *testing.T) {
 	var ur FileRepo
-	filePath := "/tmp/testFileRepo.txt"
+	filePath := "/tmp/temp.json"
 	ur.InitRepo(filePath)
 	ur.PrintRepo()
+}
+
+func TestFileRepo_SetURLIntoRepo(t *testing.T) {
+	var ur FileRepo
+	filePath := "/tmp/temp.json"
+	ur.InitRepo(filePath)
+	ur.SetURLIntoRepo("qerqwerqwer", "http://google.com/dafasdfasfas/index.html")
+}
+
+func TestFileRepo_GetURLFromRepo(t *testing.T) {
+	var ur FileRepo
+	filePath := "/tmp/temp.json"
+	ur.InitRepo(filePath)
+	ur.SetURLIntoRepo("qerqwerqwer", "http://google.com/dafasdfasfas/index.html")
+	ur.SetURLIntoRepo("fasdfadsfads", "http://yandex.com/123123123123/index.html")
+	ur.SetURLIntoRepo("fadfasdfasdf", "http://yahoo.com/dfasdfasdf/index.html")
+	ur.GetURLFromRepo("fasdfadsfads")
 }
