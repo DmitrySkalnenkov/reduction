@@ -22,7 +22,7 @@ type jsonLine struct {
 }
 
 type jsonRepo struct {
-	jsonSlice []jsonLine
+	JSONSlice []jsonLine
 }
 
 type MemRepo struct {
@@ -112,8 +112,8 @@ func (repo *FileRepo) PrintRepo() {
 			fmt.Printf("ERROR: Filed unmarshal data from repo file.\n")
 			return
 		} else {
-			for i := 0; i < len(jsonData.jsonSlice); i++ {
-				fmt.Printf("'%s':'%s'", jsonData.jsonSlice[i].Token, jsonData.jsonSlice[i].URL)
+			for i := 0; i < len(jsonData.JSONSlice); i++ {
+				fmt.Printf("'%s':'%s'", jsonData.JSONSlice[i].Token, jsonData.JSONSlice[i].URL)
 			}
 		}
 	} else {
@@ -128,13 +128,13 @@ func (repo *FileRepo) SetURLIntoRepo(token string, value string) {
 		var tmpJSONRepo jsonRepo
 		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
 		curJSONLine := jsonLine{Token: token, URL: value}
-		for i := 0; i < len(tmpJSONRepo.jsonSlice); i++ {
-			if curJSONLine.Token == tmpJSONRepo.jsonSlice[i].Token {
+		for i := 0; i < len(tmpJSONRepo.JSONSlice); i++ {
+			if curJSONLine.Token == tmpJSONRepo.JSONSlice[i].Token {
 				fmt.Printf("INFO: Token with such value ('%s') already in JSON file repository. Token should be unique. The repo didn'token change.\n", curJSONLine.Token)
 				return
 			}
 		}
-		tmpJSONRepo.jsonSlice = append(tmpJSONRepo.jsonSlice, curJSONLine)
+		tmpJSONRepo.JSONSlice = append(tmpJSONRepo.JSONSlice, curJSONLine)
 		DumpRepoToJSONFile(&tmpJSONRepo, repo.urlFilePath)
 	}
 }
@@ -142,15 +142,15 @@ func (repo *FileRepo) SetURLIntoRepo(token string, value string) {
 // GetURLFromRepo() Get URL from file in JSON format. If token exists isExists = true
 func (repo *FileRepo) GetURLFromRepo(token string) (string, bool) {
 	var isURLExists = false
-	var curURL string = ""
+	var curURL = ""
 	if repo.urlFilePath != "" {
 		var tmpJSONRepo jsonRepo
 		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
-		for i := 0; i < len(tmpJSONRepo.jsonSlice); i++ {
-			if token == tmpJSONRepo.jsonSlice[i].Token {
+		for i := 0; i < len(tmpJSONRepo.JSONSlice); i++ {
+			if token == tmpJSONRepo.JSONSlice[i].Token {
 				fmt.Printf("INFO: Token ('%s') was found in JSON file repository\n", token)
 				isURLExists = true
-				curURL = tmpJSONRepo.jsonSlice[i].URL
+				curURL = tmpJSONRepo.JSONSlice[i].URL
 				return curURL, isURLExists
 			}
 		}
@@ -167,8 +167,8 @@ func DumpRepoToJSONFile(jr *jsonRepo, filePath string) {
 			fmt.Printf("ERROR: Cannot open JSON repository file '%s' for dumping JSON-data.\n", filePath)
 		}
 		defer repoFile.Close()
-		if len(jr.jsonSlice) > 0 {
-			toFile, err = json.Marshal(jr.jsonSlice)
+		if len(jr.JSONSlice) > 0 {
+			toFile, err = json.Marshal(jr.JSONSlice)
 			if err != nil {
 				fmt.Printf("ERROR: Cannot marshal repo.urlMap '%v' to JSON.\n", jr)
 			}
@@ -196,7 +196,7 @@ func RestoreRepoFromJSONFile(jr *jsonRepo, filePath string) {
 		if err != nil {
 			fmt.Printf("ERROR: Cannot read data from repository file '%s'.\n", filePath)
 		}
-		err = json.Unmarshal(fromFile, &jr.jsonSlice)
+		err = json.Unmarshal(fromFile, &jr.JSONSlice)
 		if err == nil {
 			fmt.Printf("INFO: Data from repository file were restored succesfully.\n")
 		} else {

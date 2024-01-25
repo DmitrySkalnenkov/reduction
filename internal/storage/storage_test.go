@@ -159,7 +159,7 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 	filePath := "/tmp/temp_test_for_set_url.json"
 	ur.InitRepo(filePath)
 	jr1 := jsonRepo{
-		jsonSlice: []jsonLine{
+		JSONSlice: []jsonLine{
 			{
 				Token: "qwer",
 				URL:   "http://google.com/1234",
@@ -238,7 +238,7 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 	filePath := "/tmp/temp_test_for_get_url.json"
 	ur.InitRepo(filePath)
 	jr1 := jsonRepo{
-		jsonSlice: []jsonLine{
+		JSONSlice: []jsonLine{
 			{
 				Token: "qwer",
 				URL:   "http://google.com/1234",
@@ -326,7 +326,7 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 
 func TestDumpRepoToJSONFile(t *testing.T) {
 	jr1 := jsonRepo{
-		jsonSlice: []jsonLine{
+		JSONSlice: []jsonLine{
 			{
 				Token: "qwer",
 				URL:   "http://google.com/1234",
@@ -353,15 +353,15 @@ func TestDumpRepoToJSONFile(t *testing.T) {
 	if err != nil {
 		fmt.Printf("ERROR: Cannot read data from repo file '%s'.\n", filePath)
 	}
-	err = json.Unmarshal(fromFile, &jr2.jsonSlice)
+	err = json.Unmarshal(fromFile, &jr2.JSONSlice)
 	if err == nil {
 		fmt.Printf("INFO: Data from repository file were restored succesfully.\n")
 	} else {
 		fmt.Printf("ERROR: '%s'. Data from file '%s' cannot be restored.\n", err, filePath)
 	}
 
-	for i := 0; i < len(jr1.jsonSlice); i++ {
-		if jr1.jsonSlice[i] != jr2.jsonSlice[i] {
+	for i := 0; i < len(jr1.JSONSlice); i++ {
+		if jr1.JSONSlice[i] != jr2.JSONSlice[i] {
 			t.Errorf("TEST_ERROR: Dumped and restored stucts jsonRepo don't equal.\n Dumped: %v \n Restored: %v\n", jr1, jr2)
 			return
 		}
@@ -372,7 +372,7 @@ func TestDumpRepoToJSONFile(t *testing.T) {
 func TestRestoreRepoFromJSONFile(t *testing.T) {
 	var toFile []byte
 	jr1 := jsonRepo{
-		jsonSlice: []jsonLine{
+		JSONSlice: []jsonLine{
 			{
 				Token: "qwer",
 				URL:   "http://google.com/1234",
@@ -394,8 +394,8 @@ func TestRestoreRepoFromJSONFile(t *testing.T) {
 		fmt.Printf("ERROR: Filed to open the repository file '%s'.\n", filePath)
 	}
 	defer jsonRepoFile.Close()
-	if len(jr1.jsonSlice) > 0 {
-		toFile, err = json.Marshal(jr1.jsonSlice)
+	if len(jr1.JSONSlice) > 0 {
+		toFile, err = json.Marshal(jr1.JSONSlice)
 		if err != nil {
 			fmt.Printf("ERROR: Cannot marshal repo.urlMap '%v' to JSON.\n", jr1)
 		}
@@ -410,8 +410,8 @@ func TestRestoreRepoFromJSONFile(t *testing.T) {
 		RestoreRepoFromJSONFile(&jr2, filePath)
 
 	}
-	for i := 0; i < len(jr1.jsonSlice); i++ {
-		if jr1.jsonSlice[i] != jr2.jsonSlice[i] {
+	for i := 0; i < len(jr1.JSONSlice); i++ {
+		if jr1.JSONSlice[i] != jr2.JSONSlice[i] {
 			t.Errorf("TEST_ERROR: Dumped and restored stucts jsonRepo don't equal.\n Dumped: %v \n Restored: %v\n", jr1, jr2)
 			return
 		}

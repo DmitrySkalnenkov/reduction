@@ -109,11 +109,7 @@ func ReduceURL(url string, shortURLLength int, pr storage.Keeper) string {
 	for {
 		_, ok := pr.GetURLFromRepo(shortURL)
 		if !ok {
-			//urlStorage[shortURL] = url
 			pr.SetURLIntoRepo(shortURL, url)
-			if RepoFilePathStr != "" {
-				//pr.DumpRepoToJSONFile(RepoFilePathStr)
-			}
 			return shortURL
 		}
 		shortURL = randomString(shortURLLength)
