@@ -90,7 +90,7 @@ func TestTrimSlashes(t *testing.T) {
 
 func TestReductURL(t *testing.T) {
 	var ur storage.MemRepo
-	ur.InitRepo()
+	ur.InitRepo("")
 
 	type inputStruct struct {
 		url            string

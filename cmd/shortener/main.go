@@ -16,7 +16,8 @@ func main() {
 	sp.GetEnvs()
 	sp.GetFlags()
 	sp.CheckParamPriority()
-	storage.URLStorage.InitRepo()
+	storage.URLStorage = storage.URLStorageInit(app.RepoFilePathStr)
+	//storage.URLStorage.InitRepo()
 	//http.HandleFunc("/", app.PostAndGetHandler) // (i3) Вы написали приложение с помощью стандартной библиотеки net/http. Используя любой пакет(роутер или фреймворк), совместимый с net/http, перепишите ваш код.
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -27,7 +28,7 @@ func main() {
 	r.NotFound(r.NotFoundHandler())
 	r.MethodNotAllowed(r.MethodNotAllowedHandler())
 
-	//storage.URLStorage.GetRepoFromJSONFile(app.DefaultRepoFilePath)
+	//storage.URLStorage.RestoreRepoFromJSONFile(app.DefaultRepoFilePath)
 	s := &http.Server{
 		Addr: app.HostSocketAddrStr,
 	}

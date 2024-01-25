@@ -4,14 +4,12 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
-	"net/http"
-	"regexp"
-
 	"github.com/DmitrySkalnenkov/reduction/internal/app"
 	"github.com/DmitrySkalnenkov/reduction/internal/storage"
 	"github.com/go-chi/chi/v5"
+	"io"
+	"log"
+	"net/http"
 )
 
 type gzWriter struct {
@@ -50,7 +48,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	bodyStr := string(body)
 	fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
 	w.WriteHeader(http.StatusCreated) //code 201
-	resp := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
+	resp := app.ReduceURL(bodyStr, app.ShortURLLength, storage.URLStorage)
 	fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
 	storage.URLStorage.PrintRepo() //for DEBUG
 	_, err = w.Write([]byte(app.BaseURLStr + "/" + resp))
@@ -88,7 +86,7 @@ func NotImplementedHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // POST and GET handler (legacy)
-func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
+/*func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 	storage.URLStorage.PrintRepo() //for DEBUG
 	switch r.Method {
 	case http.MethodPost: //(i1) Эндпоинт POST / принимает в теле запроса строку URL для сокращения и возвращает ответ с кодом 201 и сокращённым URL в виде текстовой строки в теле.
@@ -100,7 +98,7 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		bodyStr := string(body)
 		fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
 		w.WriteHeader(http.StatusCreated) //code 201
-		resp := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
+		resp := app.ReduceURL(bodyStr, app.ShortURLLength, storage.URLStorage)
 		storage.URLStorage.PrintRepo() //for DEBUG
 		fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
 		_, err = w.Write([]byte(app.BaseURLStr + "/" + resp))
@@ -132,7 +130,7 @@ func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest) //code 400
 		return
 	}
-}
+}*/
 
 func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 	storage.URLStorage.PrintRepo() //for DEBUG
@@ -148,7 +146,7 @@ func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 		} else if curJSONMsg.URL != "" {
 			bodyStr := curJSONMsg.URL
 			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
-			token := app.ReduceURL(bodyStr, app.ShortURLLength, &storage.URLStorage)
+			token := app.ReduceURL(bodyStr, app.ShortURLLength, storage.URLStorage)
 			shortenURL := app.BaseURLStr + "/" + token
 			storage.URLStorage.PrintRepo() //for DEBUG
 			fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", shortenURL)

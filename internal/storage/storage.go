@@ -37,11 +37,11 @@ type FileRepo struct {
 type Keeper interface {
 	GetURLFromRepo(token string) (string, bool)
 	SetURLIntoRepo(token string, value string)
-	InitRepo()
+	InitRepo(repoPath string)
 	PrintRepo()
 }
 
-var URLStorage MemRepo
+var URLStorage Keeper //MemRepo
 
 // Return saved long URL from URL storage
 func (repo *MemRepo) GetURLFromRepo(token string) (string, bool) {
@@ -61,7 +61,7 @@ func (repo *MemRepo) SetURLIntoRepo(token string, value string) {
 }
 
 // Init()Initialization of MemRepo object
-func (repo *MemRepo) InitRepo() {
+func (repo *MemRepo) InitRepo(repoPath string) {
 	repo.urlMap = make(map[string]string)
 }
 
@@ -126,7 +126,7 @@ func (repo *FileRepo) PrintRepo() {
 func (repo *FileRepo) SetURLIntoRepo(token string, value string) {
 	if repo.urlFilePath != "" {
 		var tmpJSONRepo jsonRepo
-		GetRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
+		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
 		curJSONLine := jsonLine{Token: token, URL: value}
 		for i := 0; i < len(tmpJSONRepo.jsonSlice); i++ {
 			if curJSONLine.Token == tmpJSONRepo.jsonSlice[i].Token {
@@ -145,7 +145,7 @@ func (repo *FileRepo) GetURLFromRepo(token string) (string, bool) {
 	var curURL string = ""
 	if repo.urlFilePath != "" {
 		var tmpJSONRepo jsonRepo
-		GetRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
+		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
 		for i := 0; i < len(tmpJSONRepo.jsonSlice); i++ {
 			if token == tmpJSONRepo.jsonSlice[i].Token {
 				fmt.Printf("INFO: Token ('%s') was found in JSON file repository\n", token)
@@ -158,10 +158,11 @@ func (repo *FileRepo) GetURLFromRepo(token string) (string, bool) {
 	return curURL, isURLExists
 }
 
+// DumpRepoToJSONFIle() dumps data form jr to JSON file with filePath
 func DumpRepoToJSONFile(jr *jsonRepo, filePath string) {
 	if filePath != "" {
 		var toFile []byte
-		repoFile, err := os.OpenFile(filePath, os.O_RDWR, 0777)
+		repoFile, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
 		if err != nil {
 			fmt.Printf("ERROR: Cannot open JSON repository file '%s' for dumping JSON-data.\n", filePath)
 		}
@@ -183,7 +184,8 @@ func DumpRepoToJSONFile(jr *jsonRepo, filePath string) {
 	}
 }
 
-func GetRepoFromJSONFile(jr *jsonRepo, filePath string) {
+// ResotreRepoToJSONFIle() restore data form JSON file with filePath to jr
+func RestoreRepoFromJSONFile(jr *jsonRepo, filePath string) {
 	if filePath != "" {
 		repoFile, err := os.OpenFile(filePath, os.O_RDONLY, 0777)
 		if err != nil {
@@ -194,12 +196,23 @@ func GetRepoFromJSONFile(jr *jsonRepo, filePath string) {
 		if err != nil {
 			fmt.Printf("ERROR: Cannot read data from repository file '%s'.\n", filePath)
 		}
-		//var tmpRepo MemRepo
 		err = json.Unmarshal(fromFile, &jr.jsonSlice)
 		if err == nil {
 			fmt.Printf("INFO: Data from repository file were restored succesfully.\n")
 		} else {
 			fmt.Printf("ERROR: '%s'. Data from file '%s' cannot be restored.\n", err, filePath)
 		}
+	}
+}
+
+func URLStorageInit(filePath string) (ur Keeper) {
+	if filePath != "" {
+		ur := new(FileRepo)
+		ur.InitRepo(filePath)
+		return ur
+	} else {
+		ur := new(MemRepo)
+		ur.InitRepo(filePath)
+		return ur
 	}
 }
