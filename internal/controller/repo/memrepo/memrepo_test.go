@@ -1,4 +1,4 @@
-package storage
+package memrepo
 
 import (
 	"encoding/json"
@@ -351,7 +351,7 @@ func TestDumpRepoToJSONFile(t *testing.T) {
 	defer jsonRepoFile.Close()
 	fromFile, err := io.ReadAll(jsonRepoFile)
 	if err != nil {
-		fmt.Printf("ERROR: Cannot read data from repo file '%s'.\n", filePath)
+		fmt.Printf("ERROR: Cannot read data from memrepo file '%s'.\n", filePath)
 	}
 	err = json.Unmarshal(fromFile, &jr2.JSONSlice)
 	if err == nil {
@@ -397,7 +397,7 @@ func TestRestoreRepoFromJSONFile(t *testing.T) {
 	if len(jr1.JSONSlice) > 0 {
 		toFile, err = json.Marshal(jr1.JSONSlice)
 		if err != nil {
-			fmt.Printf("ERROR: Cannot marshal repo.urlMap '%v' to JSON.\n", jr1)
+			fmt.Printf("ERROR: Cannot marshal memrepo.urlMap '%v' to JSON.\n", jr1)
 		}
 		jsonRepoFile.Truncate(0)
 		jsonRepoFile.Seek(0, 0)

@@ -1,16 +1,32 @@
 package app
 
 import (
-	"crypto/rand"
-	"encoding/base32"
-	"flag"
-	"fmt"
-	"os"
-	"strings"
-
-	"github.com/DmitrySkalnenkov/reduction/internal/storage"
+	"github.com/DmitrySkalnenkov/reduction/config"
+	router "github.com/DmitrySkalnenkov/reduction/internal/controller/http"
+	"github.com/DmitrySkalnenkov/reduction/internal/controller/repo"
+	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"log"
+	"net/http"
 )
 
+var URLStorage entity.Keeper
+
+// Run creates objects via constructors.
+
+func Run(cfg *config.ServerParameters) {
+	//Repository
+	URLStorage = repo.URLStorageInit(cfg.RepoFilePathStr)
+	//Router
+	r := router.NewRouter()
+	// Use case
+	s := &http.Server{
+		Addr: cfg.HostSocketAddrStr,
+	}
+	s.Handler = r
+	log.Fatal(s.ListenAndServe())
+}
+
+/*
 const ShortURLLength = 15
 const (
 	DefaultHostTCPPort  string = ":8080"
@@ -115,3 +131,4 @@ func ReduceURL(url string, shortURLLength int, pr storage.Keeper) string {
 		shortURL = randomString(shortURLLength)
 	}
 }
+*/

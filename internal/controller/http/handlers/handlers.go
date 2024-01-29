@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/DmitrySkalnenkov/reduction/internal/app"
-	"github.com/DmitrySkalnenkov/reduction/internal/storage"
+	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/usecase"
 	"github.com/go-chi/chi/v5"
 	"io"
 	"log"
@@ -24,7 +25,7 @@ func (w gzWriter) Write(b []byte) (int, error) {
 
 // POST handler
 func PostHandler(w http.ResponseWriter, r *http.Request) {
-	storage.URLStorage.PrintRepo() //for DEBUG
+	app.URLStorage.PrintRepo() //for DEBUG
 	var reader io.Reader
 
 	if r.Header.Get("Content-Encoding") == "gzip" {
@@ -48,10 +49,10 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	bodyStr := string(body)
 	fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
 	w.WriteHeader(http.StatusCreated) //code 201
-	resp := app.ReduceURL(bodyStr, app.ShortURLLength, storage.URLStorage)
+	resp := usecase.ReduceURL(bodyStr, ShortURLLength, app.URLStorage)
 	fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
-	storage.URLStorage.PrintRepo() //for DEBUG
-	_, err = w.Write([]byte(app.BaseURLStr + "/" + resp))
+	app.URLStorage.PrintRepo() //for DEBUG
+	_, err = w.Write([]byte(ps.BaseURLStr + "/" + resp))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -63,10 +64,10 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
 	fmt.Println("DEBUG: UrlStorage:")
-	storage.URLStorage.PrintRepo()
+	app.URLStorage.PrintRepo()
 	id := chi.URLParam(r, "id")
 	fmt.Printf("DEBUG: Token of shortened URL is '%s'.\n", id)
-	longURL, ok := storage.URLStorage.GetURLFromRepo(id)
+	longURL, ok := app.URLStorage.GetURLFromRepo(id)
 	if longURL != "" && ok {
 		fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURL)
 		w.Header().Set("Location", longURL)
@@ -133,9 +134,9 @@ func NotImplementedHandler(w http.ResponseWriter, r *http.Request) {
 }*/
 
 func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
-	storage.URLStorage.PrintRepo() //for DEBUG
-	var curJSONMsg storage.TxJSONMessage
-	var respJSONMsg storage.RxJSONMessage
+	app.URLStorage.PrintRepo() //for DEBUG
+	var curJSONMsg entity.TxJSONMessage
+	var respJSONMsg entity.RxJSONMessage
 	if r.Header.Get("Content-Type") == "application/json" && r.Method == http.MethodPost {
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&curJSONMsg)
@@ -146,9 +147,9 @@ func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 		} else if curJSONMsg.URL != "" {
 			bodyStr := curJSONMsg.URL
 			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
-			token := app.ReduceURL(bodyStr, app.ShortURLLength, storage.URLStorage)
+			token := usecase.ReduceURL(bodyStr, app.ShortURLLength, app.URLStorage)
 			shortenURL := app.BaseURLStr + "/" + token
-			storage.URLStorage.PrintRepo() //for DEBUG
+			app.URLStorage.PrintRepo() //for DEBUG
 			fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", shortenURL)
 			respJSONMsg.Result = shortenURL
 			w.Header().Set("Content-Type", "application/json")
