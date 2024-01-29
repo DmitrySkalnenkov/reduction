@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-func TrimSlashes(slashedStr string) string {
+/*func TrimSlashes(slashedStr string) string {
 	return strings.ReplaceAll(slashedStr, "/", "")
-}
+}*/
 
 func randomString(length int) string {
 	randomBytes := make([]byte, 32)

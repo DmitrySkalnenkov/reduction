@@ -44,15 +44,18 @@ func (repo *FileRepo) PrintRepo() {
 			fmt.Printf("ERROR: Filed get data from memrepo file.\n")
 			return
 		}
-		var jsonData entity.JSONRepo
+		//var jsonData entity.JSONRepo
+		var jsonData []entity.JSONLine
 		err = json.Unmarshal(dataFromFile, &jsonData)
 		if err != nil {
 			fmt.Printf("ERROR: Filed unmarshal data from memrepo file.\n")
 			return
 		} else {
-			for i := 0; i < len(jsonData.JSONSlice); i++ {
-				fmt.Printf("'%s':'%s'", jsonData.JSONSlice[i].Token, jsonData.JSONSlice[i].URL)
+			fmt.Printf("==repo-begin=============%s=================\n", repo.urlFilePath)
+			for i := 0; i < len(jsonData); i++ {
+				fmt.Printf("'%s':'%s'\n", jsonData[i].Token, jsonData[i].URL)
 			}
+			fmt.Printf("==repo-end===============%s=================\n", repo.urlFilePath)
 		}
 	} else {
 		fmt.Printf("ERROR: FileRepo path is empty. Cannot be used filerepository.\n")

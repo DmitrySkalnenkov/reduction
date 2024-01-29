@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 	"os"
 )
 
@@ -18,7 +19,6 @@ type ServerParameters struct {
 	HostSocketAddrStr string
 	BaseURLStr        string
 	RepoFilePathStr   string
-	ShortURLLength    int
 	envSocketAddr     string
 	isEnvSocketAddr   bool
 	envBaseURL        string
@@ -79,7 +79,6 @@ func (ps *ServerParameters) CheckParamPriority() {
 	} else {
 		ps.RepoFilePathStr = DefaultRepoFilePath
 	}
-	ps.ShortURLLength = DefaultShortURLLength
 }
 
 // NewConfig returns app config.
@@ -92,4 +91,11 @@ func NewConfig() (*ServerParameters, error) {
 	cfg.CheckParamPriority()
 
 	return cfg, nil
+}
+
+// SetGlobalVaribales() sets global variables
+func SetGlobalVariables(cfg *ServerParameters) {
+	entity.HostSocketAddrStr = cfg.HostSocketAddrStr
+	entity.BaseURLStr = cfg.BaseURLStr
+	entity.RepoFilePathStr = cfg.RepoFilePathStr
 }

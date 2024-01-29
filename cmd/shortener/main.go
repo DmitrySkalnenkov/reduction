@@ -1,10 +1,9 @@
 package main
 
 import (
-	"log"
-
 	"github.com/DmitrySkalnenkov/reduction/config"
 	"github.com/DmitrySkalnenkov/reduction/internal/app"
+	"log"
 )
 
 func main() {

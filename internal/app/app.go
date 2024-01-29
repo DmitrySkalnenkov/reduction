@@ -9,18 +9,22 @@ import (
 	"net/http"
 )
 
-var URLStorage entity.Keeper
-
 // Run creates objects via constructors.
 
 func Run(cfg *config.ServerParameters) {
+	//Global variables
+
+	config.SetGlobalVariables(cfg)
+	entity.HostSocketAddrStr = cfg.HostSocketAddrStr
+	entity.BaseURLStr = cfg.BaseURLStr
+	entity.RepoFilePathStr = cfg.RepoFilePathStr
 	//Repository
-	URLStorage = repo.URLStorageInit(cfg.RepoFilePathStr)
+	entity.URLStorage = repo.URLStorageInit(entity.RepoFilePathStr)
 	//Router
 	r := router.NewRouter()
 	// Use case
 	s := &http.Server{
-		Addr: cfg.HostSocketAddrStr,
+		Addr: entity.HostSocketAddrStr,
 	}
 	s.Handler = r
 	log.Fatal(s.ListenAndServe())
