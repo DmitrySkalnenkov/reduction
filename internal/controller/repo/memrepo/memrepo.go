@@ -10,7 +10,7 @@ type MemRepo struct {
 	urlMap map[string]string
 }
 
-// Return saved long URL from URL storage
+// GetURLFromRepo returns saved long URL from URL storage
 func (repo *MemRepo) GetURLFromRepo(token string) (string, bool) {
 	url, ok := repo.urlMap[token]
 	if ok {
@@ -22,12 +22,12 @@ func (repo *MemRepo) GetURLFromRepo(token string) (string, bool) {
 	}
 }
 
-// Set value (long URL) into repository for this token(shortened URL)
+// SetURLIntoRepo sets value (long URL) into repository for this token(shortened URL)
 func (repo *MemRepo) SetURLIntoRepo(token string, value string) {
 	repo.urlMap[token] = value
 }
 
-// Init()Initialization of MemRepo object
+// InitRepo() init MemRepo object
 func (repo *MemRepo) InitRepo(repoPath string) {
 	repo.urlMap = make(map[string]string)
 }

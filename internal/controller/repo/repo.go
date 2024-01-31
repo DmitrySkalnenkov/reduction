@@ -8,12 +8,11 @@ import (
 
 func URLStorageInit(filePath string) (ur entity.Keeper) {
 	if filePath != "" {
-		ur := new(filerepo.FileRepo)
+		ur = new(filerepo.FileRepo)
 		ur.InitRepo(filePath)
-		return ur
 	} else {
-		ur := new(memrepo.MemRepo)
+		ur = new(memrepo.MemRepo)
 		ur.InitRepo(filePath)
-		return ur
 	}
+	return ur
 }

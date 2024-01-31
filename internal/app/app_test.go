@@ -1,41 +1,33 @@
 package app
 
-/*func TestTrimSlashes(t *testing.T) {
-	tests := []struct {
-		name     string
-		inputVal string
-		wantVal  string
-	}{ //Test table
-		{
-			name:     "Positive test. Slash in the begining of string",
-			inputVal: "/test_string1",
-			wantVal:  "test_string1",
-		},
-		{
-			name:     "Positive test. Slash in the end of string",
-			inputVal: "test_string2/",
-			wantVal:  "test_string2",
-		},
-		{
-			name:     "Positive test. Slash in the middle of string",
-			inputVal: "test_st/ring3",
-			wantVal:  "test_string3",
-		},
-		{
-			name:     "Positive test. Double slash",
-			inputVal: "te//st_string4",
-			wantVal:  "test_string4",
-		},
+/*
+import (
+	"github.com/DmitrySkalnenkov/reduction/config"
+	"testing"
+)
+
+func Test_Run(t *testing.T) {
+	incfg := config.ServerParameters{
+		HostSocketAddrStr: "localhost:8080",
+		BaseURLStr:        "http://baseurl.com",
+		RepoFilePathStr:   "",
 	}
 
+	tests := []struct {
+		name     string
+		inputCfg *config.ServerParameters
+	}{ //Test table
+		{
+			name:     "Positive test",
+			inputCfg: &incfg,
+		},
+	}
 	for _, tt := range tests {
 		// запускаем каждый тест
-		resultStr := ""
 		t.Run(tt.name, func(t *testing.T) {
-			resultStr = TrimSlashes(tt.inputVal)
-			if resultStr != tt.wantVal {
-				t.Errorf("TEST_ERROR: input value is %s, want is %s but result is %s", tt.inputVal, tt.wantVal, resultStr)
-			}
+			Run(tt.inputCfg)
+
 		})
 	}
-}*/
+}
+*/

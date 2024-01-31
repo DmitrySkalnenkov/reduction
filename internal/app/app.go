@@ -3,7 +3,8 @@ package app
 import (
 	"github.com/DmitrySkalnenkov/reduction/config"
 	router "github.com/DmitrySkalnenkov/reduction/internal/controller/http"
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/repo"
+	"github.com/DmitrySkalnenkov/reduction/internal/controller/repo/filerepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/controller/repo/memrepo"
 	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 	"log"
 	"net/http"
@@ -19,7 +20,15 @@ func Run(cfg *config.ServerParameters) {
 	entity.BaseURLStr = cfg.BaseURLStr
 	entity.RepoFilePathStr = cfg.RepoFilePathStr
 	//Repository
-	entity.URLStorage = repo.URLStorageInit(entity.RepoFilePathStr)
+	//entity.URLStorage = repo.URLStorageInit(entity.RepoFilePathStr)
+	if entity.RepoFilePathStr == "" {
+		entity.URLStorage = new(memrepo.MemRepo)
+		entity.URLStorage.InitRepo("")
+	} else {
+		entity.URLStorage = new(filerepo.FileRepo)
+		entity.URLStorage.InitRepo(entity.RepoFilePathStr)
+	}
+
 	//Router
 	r := router.NewRouter()
 	// Use case
