@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"fmt"
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/repo"
+	"github.com/DmitrySkalnenkov/reduction/internal/controller/memrepo"
 	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 	"testing"
 )
@@ -49,8 +49,9 @@ func TestRandomString(t *testing.T) {
 }
 
 func TestReductURL(t *testing.T) {
+	us := new(memrepo.MemRepo)
+	us.InitRepo("")
 
-	us := repo.URLStorageInit("")
 	type inputStruct struct {
 		url            string
 		shortURLLength int
