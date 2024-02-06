@@ -10,17 +10,24 @@ var RepoFilePathStr string
 type TxJSONMessage struct {
 	URL string `json:"url"`
 }
+
 type RxJSONMessage struct {
 	Result string `json:"result"`
 }
 
 type JSONLine struct {
-	Token string `json:"token"`
-	URL   string `json:"url"`
+	Token  string `json:"short_url"`
+	URL    string `json:"original_url"`
+	UserID string `json:"user_id"`
 }
 
 type JSONRepo struct {
 	JSONSlice []JSONLine
+}
+
+type URLUser struct {
+	URL    string
+	UserID int
 }
 
 type Keeper interface {

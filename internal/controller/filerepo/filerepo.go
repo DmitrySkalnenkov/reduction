@@ -41,14 +41,14 @@ func (repo *FileRepo) PrintRepo() {
 		defer repo.urlFile.Close()
 		dataFromFile, err := io.ReadAll(repo.urlFile)
 		if err != nil {
-			fmt.Printf("ERROR: Filed get data from memrepo file.\n")
+			fmt.Printf("ERROR: Filed get data from repo file.\n")
 			return
 		}
 		//var jsonData entity.JSONRepo
 		var jsonData []entity.JSONLine
 		err = json.Unmarshal(dataFromFile, &jsonData)
 		if err != nil {
-			fmt.Printf("ERROR: Filed unmarshal data from memrepo file.\n")
+			fmt.Printf("ERROR: Filed unmarshal data from repo file.\n")
 			return
 		} else {
 			fmt.Printf("==repo-begin=============%s=================\n", repo.urlFilePath)
@@ -68,7 +68,7 @@ func (repo *FileRepo) SetURLIntoRepo(token string, value string) {
 	if repo.urlFilePath != "" {
 		var tmpJSONRepo entity.JSONRepo
 		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
-		curJSONLine := entity.JSONLine{Token: token, URL: value}
+		curJSONLine := entity.JSONLine{Token: token, URL: value, UserID: "0"} //UserID = 0 - default UserID
 		for i := 0; i < len(tmpJSONRepo.JSONSlice); i++ {
 			if curJSONLine.Token == tmpJSONRepo.JSONSlice[i].Token {
 				fmt.Printf("INFO: Token with such value ('%s') already in JSON file repository. Token should be unique. The memrepo didn'token change.\n", curJSONLine.Token)
