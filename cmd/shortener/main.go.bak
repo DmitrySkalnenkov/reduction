@@ -1,23 +1,15 @@
 package main
 
 import (
-	"github.com/DmitrySkalnenkov/reduction/config"
 	"github.com/DmitrySkalnenkov/reduction/internal/app"
+	"github.com/DmitrySkalnenkov/reduction/internal/handlers"
+	"github.com/DmitrySkalnenkov/reduction/internal/storage"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"log"
+	"net/http"
 )
 
-func main() {
-	// Configuration
-	cfg, err := config.NewConfig()
-	if err != nil {
-		log.Fatalf("Config error: %s", err)
-	}
-
-	// Run
-	app.Run(cfg)
-}
-
-/*
 // (i1) Сервер должен предоставлять два эндпоинта: POST / и GET /{id}
 func main() {
 	var sp app.ServerParameters
@@ -43,4 +35,3 @@ func main() {
 	s.Handler = r
 	log.Fatal(s.ListenAndServe())
 }
-*/

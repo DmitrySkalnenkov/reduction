@@ -1,0 +1,1 @@
+ shortenertest -test.v -test.run=^TestIteration[2]$ -binary-path=cmd/shortener/shortener -server-port=8080 -file-storage-path=/tmp/temp.txt -source-path=.

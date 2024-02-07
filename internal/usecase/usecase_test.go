@@ -1,8 +1,9 @@
-package app
+package usecase
 
 import (
 	"fmt"
-	"github.com/DmitrySkalnenkov/reduction/internal/storage"
+	"github.com/DmitrySkalnenkov/reduction/internal/controller/memrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 	"testing"
 )
 
@@ -47,54 +48,14 @@ func TestRandomString(t *testing.T) {
 	}
 }
 
-func TestTrimSlashes(t *testing.T) {
-	tests := []struct {
-		name     string
-		inputVal string
-		wantVal  string
-	}{ //Test table
-		{
-			name:     "Positive test. Slash in the begining of string",
-			inputVal: "/test_string1",
-			wantVal:  "test_string1",
-		},
-		{
-			name:     "Positive test. Slash in the end of string",
-			inputVal: "test_string2/",
-			wantVal:  "test_string2",
-		},
-		{
-			name:     "Positive test. Slash in the middle of string",
-			inputVal: "test_st/ring3",
-			wantVal:  "test_string3",
-		},
-		{
-			name:     "Positive test. Double slash",
-			inputVal: "te//st_string4",
-			wantVal:  "test_string4",
-		},
-	}
-
-	for _, tt := range tests {
-		// запускаем каждый тест
-		resultStr := ""
-		t.Run(tt.name, func(t *testing.T) {
-			resultStr = TrimSlashes(tt.inputVal)
-			if resultStr != tt.wantVal {
-				t.Errorf("TEST_ERROR: input value is %s, want is %s but result is %s", tt.inputVal, tt.wantVal, resultStr)
-			}
-		})
-	}
-}
-
 func TestReductURL(t *testing.T) {
-	var ur storage.Repository
-	ur.Init()
+	us := new(memrepo.MemRepo)
+	us.InitRepo("")
 
 	type inputStruct struct {
 		url            string
 		shortURLLength int
-		urlStorage     *storage.Repository
+		urlStorage     entity.Keeper
 	}
 
 	tests := []struct {
@@ -107,7 +68,7 @@ func TestReductURL(t *testing.T) {
 			inputs: inputStruct{
 				url:            "http://google.com/qwertyuiopasdfghjkkllzxcvbnm",
 				shortURLLength: 10,
-				urlStorage:     &ur,
+				urlStorage:     us,
 			},
 			lenghtOfResult: 10,
 		},
@@ -116,7 +77,7 @@ func TestReductURL(t *testing.T) {
 			inputs: inputStruct{
 				url:            "http://google.com/qwertyuiopasdfghjkkllzxcvbnm",
 				shortURLLength: 15,
-				urlStorage:     &ur,
+				urlStorage:     us,
 			},
 			lenghtOfResult: 15,
 		},
@@ -125,7 +86,7 @@ func TestReductURL(t *testing.T) {
 			inputs: inputStruct{
 				url:            "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm",
 				shortURLLength: 15,
-				urlStorage:     &ur,
+				urlStorage:     us,
 			},
 			lenghtOfResult: 15,
 		},
@@ -134,7 +95,7 @@ func TestReductURL(t *testing.T) {
 			inputs: inputStruct{
 				url:            "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm",
 				shortURLLength: 15,
-				urlStorage:     &ur,
+				urlStorage:     us,
 			},
 			lenghtOfResult: 15,
 		},
@@ -146,9 +107,9 @@ func TestReductURL(t *testing.T) {
 		var ok bool
 
 		t.Run(tt.name, func(t *testing.T) {
-			resultStr = ReductURL(tt.inputs.url, tt.inputs.shortURLLength, *tt.inputs.urlStorage)
+			resultStr = ReduceURL(tt.inputs.url, tt.inputs.shortURLLength, tt.inputs.urlStorage)
 			fmt.Printf("TEST_DEBUG: Shortened token is '%s' for URL '%s'.\n", resultStr, tt.inputs.url)
-			takenURL, ok = tt.inputs.urlStorage.GetURLFromStorage(resultStr)
+			takenURL, ok = tt.inputs.urlStorage.GetURLFromRepo(resultStr)
 			if len(resultStr) != tt.lenghtOfResult {
 				t.Errorf("TEST_ERROR: input url is %s, wanted lenght of the resul string is %d but the outpus string is %s", tt.inputs.url, tt.lenghtOfResult, resultStr)
 			} else if !ok {
