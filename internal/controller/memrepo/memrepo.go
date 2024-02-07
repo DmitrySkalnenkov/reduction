@@ -12,22 +12,23 @@ type MemRepo struct {
 }
 
 // GetURLFromRepo returns saved long URL from URL storage
-func (repo *MemRepo) GetURLFromRepo(token string) (string, bool) {
+func (repo *MemRepo) GetURLFromRepo(token string) (entity.URLUser, bool) {
+	defaultURLUser := entity.URLUser{URL: "", UserID: 0}
 	urluser, ok := repo.urlMap[token]
 	if ok {
 		fmt.Printf("DEBUG: Found long URL with token '%s' is URL storage.\n", token)
-		return urluser.URL, ok
+		return urluser, ok
 	} else {
 		fmt.Printf("DEBUG: Shortened URL with token '%s' not found in URL storage.\n", token)
-		return "", ok
+		return defaultURLUser, ok
 	}
 }
 
 // SetURLIntoRepo sets value (long URL) into repository for this token(shortened URL)
-func (repo *MemRepo) SetURLIntoRepo(token string, value string) {
+func (repo *MemRepo) SetURLIntoRepo(token string, value entity.URLUser) {
 	tmp := repo.urlMap[token]
-	tmp.URL = value
-	tmp.UserID = 0 //default UserID
+	tmp.URL = value.URL
+	tmp.UserID = value.UserID //default UserID
 	repo.urlMap[token] = tmp
 }
 

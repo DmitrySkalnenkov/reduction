@@ -24,12 +24,12 @@ func randomString(length int) string {
 }
 
 // ReduceURL() reduce long URL to token, save token as key and URL as value into URLStorage, return token.
-func ReduceURL(url string, shortURLLength int, pr entity.Keeper) string {
+func ReduceURL(urluser entity.URLUser, shortURLLength int, pr entity.Keeper) string {
 	shortURL := randomString(shortURLLength)
 	for {
 		_, ok := pr.GetURLFromRepo(shortURL)
 		if !ok {
-			pr.SetURLIntoRepo(shortURL, url)
+			pr.SetURLIntoRepo(shortURL, urluser)
 			return shortURL
 		}
 		shortURL = randomString(shortURLLength)

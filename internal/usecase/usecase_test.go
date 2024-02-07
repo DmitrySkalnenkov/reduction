@@ -53,7 +53,7 @@ func TestReductURL(t *testing.T) {
 	us.InitRepo("")
 
 	type inputStruct struct {
-		url            string
+		urluser        entity.URLUser
 		shortURLLength int
 		urlStorage     entity.Keeper
 	}
@@ -66,7 +66,7 @@ func TestReductURL(t *testing.T) {
 		{
 			name: "Positive test. Lenght of the shortenURL is 10",
 			inputs: inputStruct{
-				url:            "http://google.com/qwertyuiopasdfghjkkllzxcvbnm",
+				urluser:        entity.URLUser{URL: "http://google.com/qwertyuiopasdfghjkkllzxcvbnm", UserID: 0},
 				shortURLLength: 10,
 				urlStorage:     us,
 			},
@@ -75,7 +75,7 @@ func TestReductURL(t *testing.T) {
 		{
 			name: "Positive test. Lenght of the shortenURL is 15",
 			inputs: inputStruct{
-				url:            "http://google.com/qwertyuiopasdfghjkkllzxcvbnm",
+				urluser:        entity.URLUser{URL: "http://google.com/qwertyuiopasdfghjkkllzxcvbnm", UserID: 0},
 				shortURLLength: 15,
 				urlStorage:     us,
 			},
@@ -84,7 +84,7 @@ func TestReductURL(t *testing.T) {
 		{
 			name: "Positive test. URL with strange symbols",
 			inputs: inputStruct{
-				url:            "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm",
+				urluser:        entity.URLUser{URL: "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm", UserID: 0},
 				shortURLLength: 15,
 				urlStorage:     us,
 			},
@@ -93,7 +93,7 @@ func TestReductURL(t *testing.T) {
 		{
 			name: "Positive test. Check adding token into urlStorage",
 			inputs: inputStruct{
-				url:            "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm",
+				urluser:        entity.URLUser{URL: "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm", UserID: 0},
 				shortURLLength: 15,
 				urlStorage:     us,
 			},
@@ -103,19 +103,19 @@ func TestReductURL(t *testing.T) {
 	for _, tt := range tests {
 		// запускаем каждый тест
 		var resultStr string
-		var takenURL string
+		var takenURLUser entity.URLUser
 		var ok bool
 
 		t.Run(tt.name, func(t *testing.T) {
-			resultStr = ReduceURL(tt.inputs.url, tt.inputs.shortURLLength, tt.inputs.urlStorage)
-			fmt.Printf("TEST_DEBUG: Shortened token is '%s' for URL '%s'.\n", resultStr, tt.inputs.url)
-			takenURL, ok = tt.inputs.urlStorage.GetURLFromRepo(resultStr)
+			resultStr = ReduceURL(tt.inputs.urluser, tt.inputs.shortURLLength, tt.inputs.urlStorage)
+			fmt.Printf("TEST_DEBUG: Shortened token is '%s' for URL '%s'.\n", resultStr, tt.inputs.urluser)
+			takenURLUser, ok = tt.inputs.urlStorage.GetURLFromRepo(resultStr)
 			if len(resultStr) != tt.lenghtOfResult {
-				t.Errorf("TEST_ERROR: input url is %s, wanted lenght of the resul string is %d but the outpus string is %s", tt.inputs.url, tt.lenghtOfResult, resultStr)
+				t.Errorf("TEST_ERROR: input url is %s, wanted lenght of the resul string is %d but the outpus string is %s", tt.inputs.urluser, tt.lenghtOfResult, resultStr)
 			} else if !ok {
-				t.Errorf("TEST_ERROR: Token for URL '%s' didn't save into URL storage.\n", tt.inputs.url)
-			} else if takenURL != tt.inputs.url {
-				t.Errorf("TEST_ERROR: Gotten URL from the storage ('%s') doesn't match with input URL (%s).\n", resultStr, tt.inputs.url)
+				t.Errorf("TEST_ERROR: Token for URL '%s' didn't save into URL storage.\n", tt.inputs.urluser)
+			} else if takenURLUser != tt.inputs.urluser {
+				t.Errorf("TEST_ERROR: Gotten URL from the storage ('%s') doesn't match with input URL (%s).\n", resultStr, tt.inputs.urluser)
 			}
 		})
 	}

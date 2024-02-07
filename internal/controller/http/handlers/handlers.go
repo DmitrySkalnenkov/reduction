@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/DmitrySkalnenkov/reduction/config"
+	"github.com/DmitrySkalnenkov/reduction/internal/controller/http/cookies"
 	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 	"github.com/DmitrySkalnenkov/reduction/internal/usecase"
 	"github.com/go-chi/chi/v5"
@@ -23,44 +24,6 @@ func (w gzWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
 }
 
-// POST handler
-func PostHandler(w http.ResponseWriter, r *http.Request) {
-	//us := repo.URLStorageInit("")
-	entity.URLStorage.PrintRepo() //for DEBUG
-	var reader io.Reader
-
-	if r.Header.Get("Content-Encoding") == "gzip" {
-		gz, err := gzip.NewReader(r.Body)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			fmt.Printf("ERROR: %v", err)
-			return
-		}
-		reader = gz
-		defer gz.Close()
-	} else {
-		reader = r.Body
-	}
-
-	body, err := io.ReadAll(reader)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	bodyStr := string(body)
-	fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
-	w.WriteHeader(http.StatusCreated) //code 201
-	resp := usecase.ReduceURL(bodyStr, config.DefaultShortURLLength, entity.URLStorage)
-	fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
-	entity.URLStorage.PrintRepo() //for DEBUG
-	_, err = w.Write([]byte(entity.BaseURLStr + "/" + resp))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-}
-
 // GET handler
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("")
@@ -68,10 +31,10 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	entity.URLStorage.PrintRepo()
 	id := chi.URLParam(r, "id")
 	fmt.Printf("DEBUG: Token of shortened URL is '%s'.\n", id)
-	longURL, ok := entity.URLStorage.GetURLFromRepo(id)
-	if longURL != "" && ok {
-		fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURL)
-		w.Header().Set("Location", longURL)
+	longURLUser, ok := entity.URLStorage.GetURLFromRepo(id)
+	if longURLUser.URL != "" && ok {
+		fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURLUser)
+		w.Header().Set("Location", longURLUser.URL)
 	} else {
 		fmt.Printf("DEBUG: Long URL with id '%s' not found in URL storage.\n", id)
 	}
@@ -87,52 +50,43 @@ func NotImplementedHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// POST and GET handler (legacy)
-/*func PostAndGetHandler(w http.ResponseWriter, r *http.Request) {
-	storage.URLStorage.PrintRepo() //for DEBUG
-	switch r.Method {
-	case http.MethodPost: //(i1) Эндпоинт POST / принимает в теле запроса строку URL для сокращения и возвращает ответ с кодом 201 и сокращённым URL в виде текстовой строки в теле.
-		body, err := io.ReadAll(r.Body)
+// POST handler
+func PostHandler(w http.ResponseWriter, r *http.Request) {
+	entity.URLStorage.PrintRepo() //for DEBUG
+	var reader io.Reader
+
+	if r.Header.Get("Content-Encoding") == "gzip" {
+		gz, err := gzip.NewReader(r.Body)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			fmt.Printf("ERROR: %v", err)
 			return
 		}
-		bodyStr := string(body)
-		fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
-		w.WriteHeader(http.StatusCreated) //code 201
-		resp := app.ReduceURL(bodyStr, app.ShortURLLength, storage.URLStorage)
-		storage.URLStorage.PrintRepo() //for DEBUG
-		fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", resp)
-		_, err = w.Write([]byte(app.BaseURLStr + "/" + resp))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		return
-	case http.MethodGet: // Эндпоинт GET /{id} принимает в качестве URL-параметра идентификатор сокращённого URL и возвращает ответ с кодом 307 и оригинальным URL в HTTP-заголовке Location.
-		urlPath := r.URL.Path
-		fmt.Printf("DEBUG: GET method. URL is %s.\n", string(urlPath))
-		matched, err := regexp.MatchString(`/[A-Za-z0-9]+$`, urlPath)
-		id := app.TrimSlashes(urlPath)
-		fmt.Printf("DEBUG: Token of shortened URL is '%s'.\n", id)
-		if matched && (err == nil) {
-			fmt.Printf("DEBUG: Got URL id with lenght %d. URL id = '%s' .\n", app.ShortURLLength, id)
-			longURL, ok := storage.URLStorage.GetURLFromRepo(id)
-			if longURL != "" && ok {
-				fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURL)
-				w.Header().Set("Location", longURL)
-			} else {
-				fmt.Printf("DEBUG: Long URL with id '%s' not found in URL storage.", id)
-			}
-		}
-		w.WriteHeader(http.StatusTemporaryRedirect) //code 307
-		return
-	default:
-		fmt.Printf("DEBUG: Only POST and GET request method supported.\n")
-		w.WriteHeader(http.StatusBadRequest) //code 400
+		reader = gz
+		defer gz.Close()
+	} else {
+		reader = r.Body
+	}
+	body, err := io.ReadAll(reader)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-}*/
+	bodyStr := string(body)
+	fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
+	curUserID := cookies.GetAuthUserID(w, r)
+	curURLUser := entity.URLUser{URL: bodyStr, UserID: curUserID}
+	resp := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
+	w.WriteHeader(http.StatusCreated) //code 201
+	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, resp)
+	entity.URLStorage.PrintRepo() //for DEBUG
+	_, err = w.Write([]byte(entity.BaseURLStr + "/" + resp))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+}
 
 func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 	entity.URLStorage.PrintRepo() //for DEBUG
@@ -148,7 +102,9 @@ func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 		} else if curJSONMsg.URL != "" {
 			bodyStr := curJSONMsg.URL
 			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
-			token := usecase.ReduceURL(bodyStr, config.DefaultShortURLLength, entity.URLStorage)
+			curUserID := cookies.GetAuthUserID(w, r)
+			curURLUser := entity.URLUser{URL: bodyStr, UserID: curUserID}
+			token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
 			shortenURL := entity.BaseURLStr + "/" + token
 			entity.URLStorage.PrintRepo() //for DEBUG
 			fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", shortenURL)

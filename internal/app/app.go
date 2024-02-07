@@ -5,6 +5,7 @@ import (
 	"github.com/DmitrySkalnenkov/reduction/internal/controller/filerepo"
 	router "github.com/DmitrySkalnenkov/reduction/internal/controller/http"
 	"github.com/DmitrySkalnenkov/reduction/internal/controller/memrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/controller/userrepo"
 	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 	"log"
 	"net/http"
@@ -14,7 +15,6 @@ import (
 
 func Run(cfg *config.ServerParameters) {
 	//Global variables
-
 	config.SetGlobalVariables(cfg)
 	entity.HostSocketAddrStr = cfg.HostSocketAddrStr
 	entity.BaseURLStr = cfg.BaseURLStr
@@ -28,6 +28,8 @@ func Run(cfg *config.ServerParameters) {
 		entity.URLStorage = new(filerepo.FileRepo)
 		entity.URLStorage.InitRepo(entity.RepoFilePathStr)
 	}
+	entity.UserKeyStorage = new(userrepo.UserRepo)
+	entity.UserKeyStorage.InitRepo("")
 
 	//Router
 	r := router.NewRouter()

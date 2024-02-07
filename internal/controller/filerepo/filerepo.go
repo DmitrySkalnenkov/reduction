@@ -6,6 +6,7 @@ import (
 	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 	"io"
 	"os"
+	"strconv"
 )
 
 type FileRepo struct {
@@ -64,11 +65,11 @@ func (repo *FileRepo) PrintRepo() {
 }
 
 // SetURLIntoRepo() Save token and url in JSON foramat into JSON file
-func (repo *FileRepo) SetURLIntoRepo(token string, value string) {
+func (repo *FileRepo) SetURLIntoRepo(token string, value entity.URLUser) {
 	if repo.urlFilePath != "" {
 		var tmpJSONRepo entity.JSONRepo
 		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
-		curJSONLine := entity.JSONLine{Token: token, URL: value, UserID: "0"} //UserID = 0 - default UserID
+		curJSONLine := entity.JSONLine{Token: token, URL: value.URL, UserID: string(value.UserID)} //UserID = 0 - default UserID
 		for i := 0; i < len(tmpJSONRepo.JSONSlice); i++ {
 			if curJSONLine.Token == tmpJSONRepo.JSONSlice[i].Token {
 				fmt.Printf("INFO: Token with such value ('%s') already in JSON file repository. Token should be unique. The memrepo didn'token change.\n", curJSONLine.Token)
@@ -81,9 +82,9 @@ func (repo *FileRepo) SetURLIntoRepo(token string, value string) {
 }
 
 // GetURLFromRepo() Get URL from file in JSON format. If token exists isExists = true
-func (repo *FileRepo) GetURLFromRepo(token string) (string, bool) {
+func (repo *FileRepo) GetURLFromRepo(token string) (entity.URLUser, bool) {
 	var isURLExists = false
-	var curURL = ""
+	var curURLUser entity.URLUser
 	if repo.urlFilePath != "" {
 		var tmpJSONRepo entity.JSONRepo
 		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
@@ -91,12 +92,16 @@ func (repo *FileRepo) GetURLFromRepo(token string) (string, bool) {
 			if token == tmpJSONRepo.JSONSlice[i].Token {
 				fmt.Printf("INFO: Token ('%s') was found in JSON file repository\n", token)
 				isURLExists = true
-				curURL = tmpJSONRepo.JSONSlice[i].URL
-				return curURL, isURLExists
+				curUserID, err := strconv.Atoi(tmpJSONRepo.JSONSlice[i].UserID)
+				if err != nil {
+					fmt.Printf("ERROR: conver string UserID %s to int.\n", tmpJSONRepo.JSONSlice[i].UserID)
+				}
+				curURLUser = entity.URLUser{URL: tmpJSONRepo.JSONSlice[i].URL, UserID: curUserID}
+				return curURLUser, isURLExists
 			}
 		}
 	}
-	return curURL, isURLExists
+	return curURLUser, isURLExists
 }
 
 // DumpRepoToJSONFIle() dumps data form jr to JSON file with filePath

@@ -2,10 +2,13 @@
 // HTTP response objects if suitable. Each logic group entities in own file.
 package entity
 
+import "github.com/DmitrySkalnenkov/reduction/internal/controller/userrepo"
+
 var URLStorage Keeper
 var HostSocketAddrStr string
 var BaseURLStr string
 var RepoFilePathStr string
+var UserKeyStorage *userrepo.UserRepo
 
 type TxJSONMessage struct {
 	URL string `json:"url"`
@@ -31,8 +34,8 @@ type URLUser struct {
 }
 
 type Keeper interface {
-	GetURLFromRepo(token string) (string, bool)
-	SetURLIntoRepo(token string, value string)
+	GetURLFromRepo(token string) (URLUser, bool)
+	SetURLIntoRepo(token string, value URLUser)
 	InitRepo(repoPath string)
 	PrintRepo()
 }

@@ -13,6 +13,7 @@ const (
 	DefaultHostURL               = "http://" + DefaultHostIPAddr + DefaultHostTCPPort
 	DefaultRepoFilePath   string = "/tmp/temp_repository_file.json"
 	DefaultShortURLLength        = 15
+	DefaultUserKeyLength         = 16
 )
 
 type ServerParameters struct {
