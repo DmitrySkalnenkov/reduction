@@ -11,11 +11,11 @@ func TestMemRepo_GetURLFromRepo(t *testing.T) {
 	ur.InitRepo("")
 	ur = MemRepo{
 		urlMap: map[string]entity.URLUser{
-			"qwerfadsfd":      {"https://golang-blog.blogspot.com/2020/01/map-golang.html", 0},
-			"8rewq78rqew":     {"https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0", 0},
-			"lahfsdafnb4121l": {"https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)", 0},
-			"3123123123123":   {"https://en.wikipedia.org/wiki/Hungarian_alphabet", 0},
-			"KJFASSFASDJSJ":   {"https://en.wikipedia.org/wiki/Latin_alphabet", 0},
+			"qwerfadsfd":      {URL: "https://golang-blog.blogspot.com/2020/01/map-golang.html", UserID: 0},
+			"8rewq78rqew":     {URL: "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0", UserID: 0},
+			"lahfsdafnb4121l": {URL: "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)", UserID: 0},
+			"3123123123123":   {URL: "https://en.wikipedia.org/wiki/Hungarian_alphabet", UserID: 0},
+			"KJFASSFASDJSJ":   {URL: "https://en.wikipedia.org/wiki/Latin_alphabet", UserID: 0},
 		},
 	}
 
@@ -86,8 +86,8 @@ func TestMemRepo_SetURLIntoRepo(t *testing.T) {
 	ur.InitRepo("")
 	ur = MemRepo{
 		urlMap: map[string]entity.URLUser{
-			"qwerfadsfd":  {"https://golang-blog.blogspot.com/2020/01/map-golang.html", 0},
-			"8rewq78rqew": {"https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0", 0},
+			"qwerfadsfd":  {URL: "https://golang-blog.blogspot.com/2020/01/map-golang.html", UserID: 0},
+			"8rewq78rqew": {URL: "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0", UserID: 0},
 		},
 	}
 
