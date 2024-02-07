@@ -2,18 +2,22 @@ package memrepo
 
 import (
 	"fmt"
+	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 	"testing"
 )
 
 func TestMemRepo_GetURLFromRepo(t *testing.T) {
 	var ur MemRepo
 	ur.InitRepo("")
-
-	ur.urlMap["qwerfadsfd"] = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
-	ur.urlMap["8rewq78rqew"] = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
-	ur.urlMap["lahfsdafnb4121l"] = "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)"
-	ur.urlMap["3123123123123"] = "https://en.wikipedia.org/wiki/Hungarian_alphabet"
-	ur.urlMap["KJFASSFASDJSJ"] = "https://en.wikipedia.org/wiki/Latin_alphabet"
+	ur = MemRepo{
+		urlMap: map[string]entity.URLUser{
+			"qwerfadsfd":      {"https://golang-blog.blogspot.com/2020/01/map-golang.html", 0},
+			"8rewq78rqew":     {"https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0", 0},
+			"lahfsdafnb4121l": {"https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)", 0},
+			"3123123123123":   {"https://en.wikipedia.org/wiki/Hungarian_alphabet", 0},
+			"KJFASSFASDJSJ":   {"https://en.wikipedia.org/wiki/Latin_alphabet", 0},
+		},
+	}
 
 	type inputStruct struct {
 		id         string
@@ -80,9 +84,15 @@ func TestMemRepo_GetURLFromRepo(t *testing.T) {
 func TestMemRepo_SetURLIntoRepo(t *testing.T) {
 	var ur MemRepo
 	ur.InitRepo("")
+	ur = MemRepo{
+		urlMap: map[string]entity.URLUser{
+			"qwerfadsfd":  {"https://golang-blog.blogspot.com/2020/01/map-golang.html", 0},
+			"8rewq78rqew": {"https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0", 0},
+		},
+	}
 
-	ur.urlMap["qwerfadsfd"] = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
-	ur.urlMap["8rewq78rqew"] = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
+	//ur.urlMap["qwerfadsfd"].URL = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
+	//ur.urlMap["8rewq78rqew"].URL = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
 
 	type inputStruct struct {
 		token      string
