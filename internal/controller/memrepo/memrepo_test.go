@@ -92,9 +92,6 @@ func TestMemRepo_SetURLIntoRepo(t *testing.T) {
 		},
 	}
 
-	//ur.urlMap["qwerfadsfd"].URL = "https://golang-blog.blogspot.com/2020/01/map-golang.html"
-	//ur.urlMap["8rewq78rqew"].URL = "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0"
-
 	type inputStruct struct {
 		token      string
 		url        string
