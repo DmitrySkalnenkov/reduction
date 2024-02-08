@@ -2,17 +2,20 @@ package cookies
 
 import (
 	"github.com/DmitrySkalnenkov/reduction/internal/controller/userrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestGetAuthUserID(t *testing.T) {
-	var ur userrepo.UserRepo
-	ur.InitRepo("")
-	ur = userrepo.UserRepo{
+	entity.UserKeyStorage = new(userrepo.UserRepo)
+	entity.UserKeyStorage.InitRepo("")
+
+	entity.UserKeyStorage = &userrepo.UserRepo{
 		KeySlice: []string{
 			"123456789012345",
+			"543210987654321",
 		},
 	}
 
@@ -30,7 +33,7 @@ func TestGetAuthUserID(t *testing.T) {
 				HttpOnly: true,
 				Secure:   true,
 			},
-			wantUserID: 1,
+			wantUserID: 2,
 		},
 		{
 			name: "Positive test 2.",
@@ -41,7 +44,7 @@ func TestGetAuthUserID(t *testing.T) {
 				HttpOnly: true,
 				Secure:   true,
 			},
-			wantUserID: 1,
+			wantUserID: 3,
 		},
 	}
 
@@ -60,10 +63,6 @@ func TestGetAuthUserID(t *testing.T) {
 }
 
 func TestGenerateSignedCookie(t *testing.T) {
-	type inputs struct {
-		userID int
-		key    string
-	}
 
 	tests := []struct {
 		name         string
