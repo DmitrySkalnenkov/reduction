@@ -58,7 +58,7 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 
 	type inputStruct struct {
 		token      string
-		value      string
+		urluser    entity.URLUser
 		urlStorage FileRepo
 	}
 	tests := []struct {
@@ -69,7 +69,7 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 			name: "Positive test 1. Set URL into URL storage (only letters).",
 			inputs: inputStruct{
 				token:      "qwerfadsfd",
-				value:      "https://go.dev/tour/moretypes/19",
+				urluser:    entity.URLUser{URL: "https://go.dev/tour/moretypes/19", UserID: 0},
 				urlStorage: ur,
 			},
 		},
@@ -77,7 +77,7 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 			name: "Positive test 2. Set URL into URL storage (only digits).",
 			inputs: inputStruct{
 				token:      "41341414134",
-				value:      "https://go.dev/doc/faq#pass_by_value",
+				urluser:    entity.URLUser{URL: "https://go.dev/doc/faq#pass_by_value", UserID: 0},
 				urlStorage: ur,
 			},
 		},
@@ -85,7 +85,7 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 			name: "Positive test 3. Empty string as token into URL storage (only digits).",
 			inputs: inputStruct{
 				token:      "",
-				value:      "https://practicum.yandex.ru/learn/go-advanced-self-paced/courses/8bca0296-484d-45dc-b9ab-f01e0f44f9f4/sprints/145736/topics/63027ac1-f19b-405d-bad5-49e3bbddf30b/lessons/572d89a8-1713-457a-927a-90c2280757bc/",
+				urluser:    entity.URLUser{URL: "https://practicum.yandex.ru/learn/go-advanced-self-paced/courses/8bca0296-484d-45dc-b9ab-f01e0f44f9f4/sprints/145736/topics/63027ac1-f19b-405d-bad5-49e3bbddf30b/lessons/572d89a8-1713-457a-927a-90c2280757bc/", UserID: 0},
 				urlStorage: ur,
 			},
 		},
@@ -95,10 +95,10 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 		var isValueExist bool
 		var resultURL string
 		t.Run(tt.name, func(t *testing.T) {
-			tt.inputs.urlStorage.SetURLIntoRepo(tt.inputs.token, tt.inputs.value)
-			fmt.Printf("TEST_DEBUG: For SetURLIntoRepo set token '%s' with URL '%s' into URLStorage.\n", tt.inputs.token, tt.inputs.value)
+			tt.inputs.urlStorage.SetURLIntoRepo(tt.inputs.token, tt.inputs.urluser.URL)
+			fmt.Printf("TEST_DEBUG: For SetURLIntoRepo set token '%s' with URL '%s' into URLStorage.\n", tt.inputs.token, tt.inputs.urluser.URL)
 			resultURL, isValueExist = tt.inputs.urlStorage.GetURLFromRepo(tt.inputs.token)
-			if resultURL != tt.inputs.value || !isValueExist {
+			if resultURL != tt.inputs.urluser.URL || !isValueExist {
 				t.Errorf("TEST_ERROR: URL '%s' for token '%s' doesn't set correctly into the URLStorage.\n", resultURL, tt.inputs.token)
 			}
 		})
@@ -135,7 +135,7 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 	}
 	DumpRepoToJSONFile(&jr1, filePath)
 	type inputStruct struct {
-		id         string
+		token      string
 		urlStorage FileRepo
 	}
 
@@ -148,7 +148,7 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 		{
 			name: "Positive test 1. Get URL from URL storage (only letters).",
 			inputs: inputStruct{
-				id:         "asdf",
+				token:      "asdf",
 				urlStorage: ur,
 			},
 			wantResultStr: "http://yandex.com/1234",
@@ -157,7 +157,7 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 		{
 			name: "Positive test 2. Get URL from URL storage (only digits).",
 			inputs: inputStruct{
-				id:         "3123123123123",
+				token:      "3123123123123",
 				urlStorage: ur,
 			},
 			wantResultStr: "https://en.wikipedia.org/wiki/Hungarian_alphabet",
@@ -166,7 +166,7 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 		{
 			name: "Positive test 3. Get URL from URL storage (long URL).",
 			inputs: inputStruct{
-				id:         "lahfsdafnb4121l",
+				token:      "lahfsdafnb4121l",
 				urlStorage: ur,
 			},
 			wantResultStr: "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)",
@@ -175,7 +175,7 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 		{
 			name: "Negative test 1. No such token.",
 			inputs: inputStruct{
-				id:         "afddsjdfsfasdf",
+				token:      "afddsjdfsfasdf",
 				urlStorage: ur,
 			},
 			wantResultStr: "",
@@ -184,13 +184,13 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		// запускаем каждый тест
-		var resultStr string
+		var resultURL string
 		var ok bool
 		t.Run(tt.name, func(t *testing.T) {
-			resultStr, ok = tt.inputs.urlStorage.GetURLFromRepo(tt.inputs.id)
-			fmt.Printf("TEST_DEBUG: For token '%s' returned URL is '%s'.\n", tt.inputs.id, resultStr)
-			if resultStr != tt.wantResultStr || ok != tt.wantOk {
-				t.Errorf("TEST_ERROR: Returned  from storage string '%s'  for token '%s' doesn't match with stored one '%s', or wantOk value (%t) unexpected.\n", resultStr, tt.inputs.id, tt.wantResultStr, ok)
+			resultURL, ok = tt.inputs.urlStorage.GetURLFromRepo(tt.inputs.token)
+			fmt.Printf("TEST_DEBUG: For token '%s' returned URL is '%s'.\n", tt.inputs.token, resultURL)
+			if resultURL != tt.wantResultStr || ok != tt.wantOk {
+				t.Errorf("TEST_ERROR: Returned  from storage string '%s'  for token '%s' doesn't match with stored one '%s', or wantOk urluser (%t) unexpected.\n", resultURL, tt.inputs.token, tt.wantResultStr, ok)
 			}
 		})
 	}

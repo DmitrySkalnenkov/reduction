@@ -65,14 +65,14 @@ func (repo *FileRepo) PrintRepo() {
 }
 
 // SetURLIntoRepo() Save token and url in JSON foramat into JSON file
-func (repo *FileRepo) SetURLIntoRepo(token string, value entity.URLUser) {
+func (repo *FileRepo) SetURLIntoRepo(token string, value string) {
 	if repo.urlFilePath != "" {
 		var tmpJSONRepo entity.JSONRepo
 		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
-		curJSONLine := entity.JSONLine{Token: token, URL: value.URL, UserID: string(value.UserID)} //UserID = 0 - default UserID
+		curJSONLine := entity.JSONLine{Token: token, URL: value, UserID: fmt.Sprintf("%d", 0)} //UserID = 0 - default UserID
 		for i := 0; i < len(tmpJSONRepo.JSONSlice); i++ {
 			if curJSONLine.Token == tmpJSONRepo.JSONSlice[i].Token {
-				fmt.Printf("INFO: Token with such value ('%s') already in JSON file repository. Token should be unique. The memrepo didn'token change.\n", curJSONLine.Token)
+				fmt.Printf("INFO: Token with such urluser ('%s') already in JSON file repository. Token should be unique. The memrepo didn'token change.\n", curJSONLine.Token)
 				return
 			}
 		}
@@ -82,7 +82,7 @@ func (repo *FileRepo) SetURLIntoRepo(token string, value entity.URLUser) {
 }
 
 // GetURLFromRepo() Get URL from file in JSON format. If token exists isExists = true
-func (repo *FileRepo) GetURLFromRepo(token string) (entity.URLUser, bool) {
+func (repo *FileRepo) GetURLFromRepo(token string) (string, bool) {
 	var isURLExists = false
 	var curURLUser entity.URLUser
 	if repo.urlFilePath != "" {
@@ -97,11 +97,11 @@ func (repo *FileRepo) GetURLFromRepo(token string) (entity.URLUser, bool) {
 					fmt.Printf("ERROR: conver string UserID %s to int.\n", tmpJSONRepo.JSONSlice[i].UserID)
 				}
 				curURLUser = entity.URLUser{URL: tmpJSONRepo.JSONSlice[i].URL, UserID: curUserID}
-				return curURLUser, isURLExists
+				return curURLUser.URL, isURLExists
 			}
 		}
 	}
-	return curURLUser, isURLExists
+	return curURLUser.URL, isURLExists
 }
 
 // DumpRepoToJSONFIle() dumps data form jr to JSON file with filePath

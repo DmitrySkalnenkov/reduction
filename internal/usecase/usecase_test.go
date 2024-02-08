@@ -103,19 +103,19 @@ func TestReductURL(t *testing.T) {
 	for _, tt := range tests {
 		// запускаем каждый тест
 		var resultStr string
-		var takenURLUser entity.URLUser
+		var takenURL string
 		var ok bool
 
 		t.Run(tt.name, func(t *testing.T) {
 			resultStr = ReduceURL(tt.inputs.urluser, tt.inputs.shortURLLength, tt.inputs.urlStorage)
-			fmt.Printf("TEST_DEBUG: Shortened token is '%s' for URL '%s'.\n", resultStr, tt.inputs.urluser)
-			takenURLUser, ok = tt.inputs.urlStorage.GetURLFromRepo(resultStr)
+			fmt.Printf("TEST_DEBUG: Shortened token is '%s' for URL '%s'.\n", resultStr, tt.inputs.urluser.URL)
+			takenURL, ok = tt.inputs.urlStorage.GetURLFromRepo(resultStr)
 			if len(resultStr) != tt.lenghtOfResult {
-				t.Errorf("TEST_ERROR: input url is %s, wanted lenght of the resul string is %d but the outpus string is %s", tt.inputs.urluser, tt.lenghtOfResult, resultStr)
+				t.Errorf("TEST_ERROR: input url is %s, wanted lenght of the resul string is %d but the outpus string is %s", tt.inputs.urluser.URL, tt.lenghtOfResult, resultStr)
 			} else if !ok {
-				t.Errorf("TEST_ERROR: Token for URL '%s' didn't save into URL storage.\n", tt.inputs.urluser)
-			} else if takenURLUser != tt.inputs.urluser {
-				t.Errorf("TEST_ERROR: Gotten URL from the storage ('%s') doesn't match with input URL (%s).\n", resultStr, tt.inputs.urluser)
+				t.Errorf("TEST_ERROR: Token for URL '%s' didn't save into URL storage.\n", tt.inputs.urluser.URL)
+			} else if takenURL != tt.inputs.urluser.URL {
+				t.Errorf("TEST_ERROR: Gotten URL from the storage ('%s') doesn't match with input URL (%s).\n", resultStr, tt.inputs.urluser.URL)
 			}
 		})
 	}

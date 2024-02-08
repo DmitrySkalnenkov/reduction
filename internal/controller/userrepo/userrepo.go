@@ -47,7 +47,7 @@ func (repo *UserRepo) PrintRepo() {
 	fmt.Println("VVVVVVVVVVVVVVVVVVVVVVVVVV")
 	fmt.Println("DEBUG: UserStorage. Begin:")
 	for i := range repo.keySlice {
-		fmt.Println("For UserID = %d, key is %s", i, repo.keySlice[i])
+		fmt.Printf("For UserID = %d, key is %s.\n", i, repo.keySlice[i])
 	}
 	fmt.Println("DEBUG: UserStorage. End.")
 	fmt.Println("^^^^^^^^^^^^^^^^^^^^^^^^^^")

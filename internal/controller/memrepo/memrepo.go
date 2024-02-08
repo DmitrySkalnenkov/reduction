@@ -12,23 +12,23 @@ type MemRepo struct {
 }
 
 // GetURLFromRepo returns saved long URL from URL storage
-func (repo *MemRepo) GetURLFromRepo(token string) (entity.URLUser, bool) {
+func (repo *MemRepo) GetURLFromRepo(token string) (string, bool) {
 	defaultURLUser := entity.URLUser{URL: "", UserID: 0}
 	urluser, ok := repo.urlMap[token]
 	if ok {
 		fmt.Printf("DEBUG: Found long URL with token '%s' is URL storage.\n", token)
-		return urluser, ok
+		return urluser.URL, ok
 	} else {
 		fmt.Printf("DEBUG: Shortened URL with token '%s' not found in URL storage.\n", token)
-		return defaultURLUser, ok
+		return defaultURLUser.URL, ok
 	}
 }
 
-// SetURLIntoRepo sets value (long URL) into repository for this token(shortened URL)
-func (repo *MemRepo) SetURLIntoRepo(token string, value entity.URLUser) {
+// SetURLIntoRepo sets url (long URL) into repository for this token(shortened URL)
+func (repo *MemRepo) SetURLIntoRepo(token string, value string) {
 	tmp := repo.urlMap[token]
-	tmp.URL = value.URL
-	tmp.UserID = value.UserID //default UserID
+	tmp.URL = value
+	tmp.UserID = 0 //default UserID = 0
 	repo.urlMap[token] = tmp
 }
 
@@ -41,7 +41,7 @@ func (repo *MemRepo) PrintRepo() {
 	fmt.Println("VVVVVVVVVVVVVVVVVVVVVVVVVV")
 	fmt.Println("DEBUG: UrlStorage. Begin:")
 	for k, v := range repo.urlMap {
-		fmt.Println(k, "value is", v)
+		fmt.Println(k, "url is", v)
 	}
 	fmt.Println("DEBUG: UrlStorage. End.")
 	fmt.Println("^^^^^^^^^^^^^^^^^^^^^^^^^^")

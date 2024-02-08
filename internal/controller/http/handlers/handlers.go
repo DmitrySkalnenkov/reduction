@@ -31,10 +31,10 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	entity.URLStorage.PrintRepo()
 	id := chi.URLParam(r, "id")
 	fmt.Printf("DEBUG: Token of shortened URL is '%s'.\n", id)
-	longURLUser, ok := entity.URLStorage.GetURLFromRepo(id)
-	if longURLUser.URL != "" && ok {
-		fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURLUser)
-		w.Header().Set("Location", longURLUser.URL)
+	longURL, ok := entity.URLStorage.GetURLFromRepo(id)
+	if longURL != "" && ok {
+		fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURL)
+		w.Header().Set("Location", longURL)
 	} else {
 		fmt.Printf("DEBUG: Long URL with id '%s' not found in URL storage.\n", id)
 	}

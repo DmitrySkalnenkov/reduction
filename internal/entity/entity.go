@@ -34,8 +34,8 @@ type URLUser struct {
 }
 
 type Keeper interface {
-	GetURLFromRepo(token string) (URLUser, bool)
-	SetURLIntoRepo(token string, value URLUser)
+	GetURLFromRepo(token string) (string, bool)
+	SetURLIntoRepo(token string, value string)
 	InitRepo(repoPath string)
 	PrintRepo()
 }

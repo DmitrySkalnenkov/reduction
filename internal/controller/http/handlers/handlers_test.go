@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/DmitrySkalnenkov/reduction/config"
 	"github.com/DmitrySkalnenkov/reduction/internal/controller/memrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/controller/userrepo"
 	"github.com/DmitrySkalnenkov/reduction/internal/entity"
 
 	"io"
@@ -21,6 +22,8 @@ func TestPostHandler(t *testing.T) {
 		BaseURLStr:        config.DefaultHostURL,
 	}
 	config.SetGlobalVariables(&sp)
+	entity.UserKeyStorage = new(userrepo.UserRepo)
+	entity.UserKeyStorage.InitRepo("")
 	entity.URLStorage = new(memrepo.MemRepo)
 	entity.URLStorage.InitRepo("")
 
@@ -92,6 +95,8 @@ func TestGetHandler(t *testing.T) {
 		BaseURLStr:        config.DefaultHostURL,
 	}
 	config.SetGlobalVariables(&sp)
+	entity.UserKeyStorage = new(userrepo.UserRepo)
+	entity.UserKeyStorage.InitRepo("")
 	entity.URLStorage = new(memrepo.MemRepo)
 	entity.URLStorage.InitRepo("")
 
@@ -182,6 +187,8 @@ func TestGetHandler(t *testing.T) {
 }
 func TestPostShortenHandler(t *testing.T) {
 	//storage.URLStorage.InitRepo("")
+	entity.UserKeyStorage = new(userrepo.UserRepo)
+	entity.UserKeyStorage.InitRepo("")
 	entity.URLStorage = new(memrepo.MemRepo)
 	entity.URLStorage.InitRepo("")
 
