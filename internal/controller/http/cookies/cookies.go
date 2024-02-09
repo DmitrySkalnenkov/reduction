@@ -55,11 +55,6 @@ func ParseAuthCookie(cookie *http.Cookie) (userID int, sign string) {
 	return userID, sign
 }
 
-/*func GetAuthCookie(r *http.Request) (cookie *http.Cookie, err error) {
-	cookie, err = r.Cookie("auth_cookie")
-	return cookie, err
-}*/
-
 func GetAuthUserID(w http.ResponseWriter, r *http.Request) int {
 	var curUserID int
 	var curUserKey string

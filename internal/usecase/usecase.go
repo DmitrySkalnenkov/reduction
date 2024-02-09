@@ -35,5 +35,3 @@ func ReduceURL(urluser entity.URLUser, shortURLLength int, pr entity.Keeper) str
 		shortURL = randomString(shortURLLength)
 	}
 }
-
-//(i9) Добавьте в сервис функциональность аутентификации пользователя.

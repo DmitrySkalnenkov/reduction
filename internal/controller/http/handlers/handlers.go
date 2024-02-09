@@ -24,11 +24,51 @@ func (w gzWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
 }
 
+func GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string) {
+	entity.URLStorage.PrintRepo() //for DEBUG
+	var curJSONMsg entity.TxJSONMessage
+	//var respJSONMsg entity.RxJSONMessage
+	var reader io.Reader
+	//JSON
+	if r.Header.Get("Content-Type") == "application/json" && r.Method == http.MethodPost {
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&curJSONMsg)
+		if err != nil {
+			log.Printf("ERROR: JSON decoding occured, %s.\n", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return ""
+		} else if curJSONMsg.URL != "" {
+			bodyStr = curJSONMsg.URL
+			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
+		}
+	} else {
+		//Plain
+		if r.Header.Get("Content-Encoding") == "gzip" {
+			gz, err := gzip.NewReader(r.Body)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				fmt.Printf("ERROR: %v", err)
+				return ""
+			}
+			reader = gz
+			defer gz.Close()
+		} else {
+			reader = r.Body
+		}
+		body, err := io.ReadAll(reader)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return ""
+		}
+		bodyStr = string(body)
+		fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
+	}
+	return bodyStr
+}
+
 // GET handler
 func GetHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("")
-	fmt.Println("DEBUG: UrlStorage:")
-	entity.URLStorage.PrintRepo()
+	entity.URLStorage.PrintRepo() //For Debug
 	id := chi.URLParam(r, "id")
 	fmt.Printf("DEBUG: Token of shortened URL is '%s'.\n", id)
 	longURL, ok := entity.URLStorage.GetURLFromRepo(id)
@@ -52,28 +92,8 @@ func NotImplementedHandler(w http.ResponseWriter, r *http.Request) {
 
 // POST handler
 func PostHandler(w http.ResponseWriter, r *http.Request) {
-	entity.URLStorage.PrintRepo() //for DEBUG
-	var reader io.Reader
-
-	if r.Header.Get("Content-Encoding") == "gzip" {
-		gz, err := gzip.NewReader(r.Body)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			fmt.Printf("ERROR: %v", err)
-			return
-		}
-		reader = gz
-		defer gz.Close()
-	} else {
-		reader = r.Body
-	}
-	body, err := io.ReadAll(reader)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	bodyStr := string(body)
-	fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
+	var err error
+	bodyStr := GetRequestBody(w, r)
 	curUserID := cookies.GetAuthUserID(w, r)
 	curURLUser := entity.URLUser{URL: bodyStr, UserID: curUserID}
 	resp := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
@@ -85,42 +105,18 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 }
 
 func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
-	entity.URLStorage.PrintRepo() //for DEBUG
-	var curJSONMsg entity.TxJSONMessage
 	var respJSONMsg entity.RxJSONMessage
-	if r.Header.Get("Content-Type") == "application/json" && r.Method == http.MethodPost {
-		decoder := json.NewDecoder(r.Body)
-		err := decoder.Decode(&curJSONMsg)
-		if err != nil {
-			log.Printf("ERROR: JSON decoding occured, %s.\n", err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		} else if curJSONMsg.URL != "" {
-			bodyStr := curJSONMsg.URL
-			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
-			curUserID := cookies.GetAuthUserID(w, r)
-			curURLUser := entity.URLUser{URL: bodyStr, UserID: curUserID}
-			token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
-			shortenURL := entity.BaseURLStr + "/" + token
-			entity.URLStorage.PrintRepo() //for DEBUG
-			fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", shortenURL)
-			respJSONMsg.Result = shortenURL
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusCreated) //code 201
-			json.NewEncoder(w).Encode(respJSONMsg)
-			return
-		} else {
-			log.Printf("DEBUG: Wrong JSON body value or not found URL in request body.\n")
-			w.WriteHeader(http.StatusNotFound) //code 404
-			return
-		}
-	} else {
-		log.Printf("DEBUG: Wrong JSON header or body value.\n")
-		w.WriteHeader(http.StatusBadRequest) //code 400
-		return
-	}
+	bodyStr := GetRequestBody(w, r)
+	curUserID := cookies.GetAuthUserID(w, r)
+	curURLUser := entity.URLUser{URL: bodyStr, UserID: curUserID}
+	token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
+	shortenURL := entity.BaseURLStr + "/" + token
+	fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", shortenURL)
+	respJSONMsg.Result = shortenURL
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated) //code 201
+	json.NewEncoder(w).Encode(respJSONMsg)
 }

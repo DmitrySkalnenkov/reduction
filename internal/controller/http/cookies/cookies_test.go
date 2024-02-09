@@ -11,7 +11,6 @@ import (
 func TestGetAuthUserID(t *testing.T) {
 	entity.UserKeyStorage = new(userrepo.UserRepo)
 	entity.UserKeyStorage.InitRepo("")
-
 	entity.UserKeyStorage = &userrepo.UserRepo{
 		KeySlice: []string{
 			"123456789012345",
@@ -63,7 +62,6 @@ func TestGetAuthUserID(t *testing.T) {
 }
 
 func TestGenerateSignedCookie(t *testing.T) {
-
 	tests := []struct {
 		name         string
 		inputUserID  int
