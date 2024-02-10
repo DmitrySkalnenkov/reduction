@@ -24,31 +24,33 @@ func (w gzWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
 }
 
-func GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string) {
+func GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string, respStatus int) {
 	entity.URLStorage.PrintRepo() //for DEBUG
 	var curJSONMsg entity.TxJSONMessage
-	//var respJSONMsg entity.RxJSONMessage
 	var reader io.Reader
-	//JSON
-	if r.Header.Get("Content-Type") == "application/json" && r.Method == http.MethodPost {
+	switch r.Header.Get("Content-Type") {
+	case "application/json":
 		decoder := json.NewDecoder(r.Body)
 		err := decoder.Decode(&curJSONMsg)
 		if err != nil {
 			log.Printf("ERROR: JSON decoding occured, %s.\n", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return ""
+			return "", http.StatusBadRequest
 		} else if curJSONMsg.URL != "" {
 			bodyStr = curJSONMsg.URL
-			log.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
+			fmt.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
+			respStatus = http.StatusCreated
+		} else {
+			bodyStr = curJSONMsg.URL
+			respStatus = http.StatusNotFound
 		}
-	} else {
-		//Plain
+	case "", "text/plain", "text/plain; charset=utf-8", "text/html; charset=utf-8":
 		if r.Header.Get("Content-Encoding") == "gzip" {
 			gz, err := gzip.NewReader(r.Body)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				fmt.Printf("ERROR: %v", err)
-				return ""
+				return "", http.StatusInternalServerError
 			}
 			reader = gz
 			defer gz.Close()
@@ -58,12 +60,16 @@ func GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string) {
 		body, err := io.ReadAll(reader)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return ""
+			return "", http.StatusBadRequest
 		}
 		bodyStr = string(body)
 		fmt.Printf("DEBUG: POST request body is: '%s'\n", bodyStr)
+		respStatus = http.StatusCreated
+	default:
+		bodyStr = ""
+		respStatus = http.StatusBadRequest
 	}
-	return bodyStr
+	return bodyStr, respStatus
 }
 
 // GET handler
@@ -93,14 +99,14 @@ func NotImplementedHandler(w http.ResponseWriter, r *http.Request) {
 // POST handler
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
-	bodyStr := GetRequestBody(w, r)
+	curBodyStr, curRespStatus := GetRequestBody(w, r)
 	curUserID := cookies.GetAuthUserID(w, r)
-	curURLUser := entity.URLUser{URL: bodyStr, UserID: curUserID}
-	resp := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
-	w.WriteHeader(http.StatusCreated) //code 201
-	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, resp)
+	curURLUser := entity.URLUser{URL: curBodyStr, UserID: curUserID}
+	token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
+	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, token)
 	entity.URLStorage.PrintRepo() //for DEBUG
-	_, err = w.Write([]byte(entity.BaseURLStr + "/" + resp))
+	w.WriteHeader(curRespStatus)
+	_, err = w.Write([]byte(entity.BaseURLStr + "/" + token))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -109,14 +115,18 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 
 func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 	var respJSONMsg entity.RxJSONMessage
-	bodyStr := GetRequestBody(w, r)
+	curBodyStr, curRespStatus := GetRequestBody(w, r)
 	curUserID := cookies.GetAuthUserID(w, r)
-	curURLUser := entity.URLUser{URL: bodyStr, UserID: curUserID}
+	curURLUser := entity.URLUser{URL: curBodyStr, UserID: curUserID}
 	token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
 	shortenURL := entity.BaseURLStr + "/" + token
-	fmt.Printf("DEBUG: Shortened URL is: '%s'.\n", shortenURL)
+	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, token)
 	respJSONMsg.Result = shortenURL
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated) //code 201
-	json.NewEncoder(w).Encode(respJSONMsg)
+	w.WriteHeader(curRespStatus)
+	err := json.NewEncoder(w).Encode(respJSONMsg)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 }
