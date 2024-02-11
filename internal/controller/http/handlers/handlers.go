@@ -130,3 +130,73 @@ func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h plainHandler) GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string, httpStatus int) {
+	reader := r.Body
+	body, err := io.ReadAll(reader)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return "", http.StatusBadRequest
+	}
+	bodyStr = string(body)
+	fmt.Printf("DEBUG: Got plain request body: '%s'\n", bodyStr)
+	return bodyStr, http.StatusCreated
+}
+
+func (h plainHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
+	curBodyStr, curRespStatus := h.GetRequestBody(w, r)
+	curUserID := cookies.GetAuthUserID(w, r)
+	curURLUser := entity.URLUser{URL: curBodyStr, UserID: curUserID}
+	token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
+	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, token)
+	w.WriteHeader(curRespStatus)
+	_, err := w.Write([]byte(entity.BaseURLStr + "/" + token))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+type PlainHandler http.HandlerFunc{
+
+}
+
+
+
+func NewPlanHandler() http.HandlerFunc{
+	var ph http.HandlerFunc
+	return ph
+}
+
+func (h jsonHandler) GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string, respStatus int) {
+	var body entity.TxJSONMessage
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&body)
+	if err != nil {
+		log.Printf("ERROR: JSON decoding occured, %s.\n", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return "", http.StatusBadRequest
+	} else if body.URL != "" {
+		bodyStr = body.URL
+		fmt.Printf("DEBUG: JSON body: URL = '%s'.\n", bodyStr)
+		respStatus = http.StatusCreated
+	} else {
+		bodyStr = ""
+		respStatus = http.StatusNotFound
+	}
+	return bodyStr, respStatus
+}
+
+func (h jsonHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
+	curBodyStr, curRespStatus := h.GetRequestBody(w, r)
+	curUserID := cookies.GetAuthUserID(w, r)
+	curURLUser := entity.URLUser{URL: curBodyStr, UserID: curUserID}
+	token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
+	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, token)
+	w.WriteHeader(curRespStatus)
+	_, err := w.Write([]byte(entity.BaseURLStr + "/" + token))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}

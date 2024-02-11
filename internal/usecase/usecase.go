@@ -30,6 +30,7 @@ func ReduceURL(urluser entity.URLUser, shortURLLength int, pr entity.Keeper) str
 		_, ok := pr.GetURLFromRepo(shortURL)
 		if !ok {
 			pr.SetURLIntoRepo(shortURL, urluser.URL)
+			pr.PrintRepo() //For DEBUG
 			return shortURL
 		}
 		shortURL = randomString(shortURLLength)
