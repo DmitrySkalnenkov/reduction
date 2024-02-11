@@ -2,11 +2,11 @@ package app
 
 import (
 	"github.com/DmitrySkalnenkov/reduction/config"
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/filerepo"
 	router "github.com/DmitrySkalnenkov/reduction/internal/controller/http"
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/memrepo"
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/userrepo"
 	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/repo/filerepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/repo/memrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/repo/userrepo"
 	"log"
 	"net/http"
 )

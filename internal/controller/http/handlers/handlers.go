@@ -131,6 +131,7 @@ func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/*
 func (h plainHandler) GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string, httpStatus int) {
 	reader := r.Body
 	body, err := io.ReadAll(reader)
@@ -200,3 +201,4 @@ func (h jsonHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+*/

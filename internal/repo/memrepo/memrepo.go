@@ -11,7 +11,7 @@ type MemRepo struct {
 	urlMap map[string]entity.URLUser
 }
 
-// GetURLFromRepo returns saved long URL from URL storage
+// GetURLFromRepo returns saved long URL with UserID from URL storage, and ok
 func (repo *MemRepo) GetURLFromRepo(token string) (string, bool) {
 	defaultURLUser := entity.URLUser{URL: "", UserID: 0}
 	urluser, ok := repo.urlMap[token]

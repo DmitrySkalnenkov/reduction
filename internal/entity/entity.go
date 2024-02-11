@@ -2,7 +2,7 @@
 // HTTP response objects if suitable. Each logic group entities in own file.
 package entity
 
-import "github.com/DmitrySkalnenkov/reduction/internal/controller/userrepo"
+import "github.com/DmitrySkalnenkov/reduction/internal/repo/userrepo"
 
 var URLStorage Keeper
 var HostSocketAddrStr string
