@@ -3,7 +3,7 @@ package filerepo
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
 	"io"
 	"os"
 	"testing"
@@ -30,8 +30,8 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 	var ur FileRepo
 	filePath := "/tmp/temp_test_for_set_url.json"
 	ur.InitRepo(filePath)
-	jr1 := entity.JSONRepo{
-		JSONSlice: []entity.JSONLine{
+	jr1 := models.JSONRepo{
+		JSONSlice: []models.JSONLine{
 			{
 				Token: "qwer",
 				URL:   "http://google.com/1234",
@@ -58,7 +58,7 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 
 	type inputStruct struct {
 		token      string
-		urluser    entity.URLUser
+		urluser    models.URLUser
 		urlStorage FileRepo
 	}
 	tests := []struct {
@@ -69,7 +69,7 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 			name: "Positive test 1. Set URL into URL storage (only letters).",
 			inputs: inputStruct{
 				token:      "qwerfadsfd",
-				urluser:    entity.URLUser{URL: "https://go.dev/tour/moretypes/19", UserID: 0},
+				urluser:    models.URLUser{URL: "https://go.dev/tour/moretypes/19", UserID: 0},
 				urlStorage: ur,
 			},
 		},
@@ -77,7 +77,7 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 			name: "Positive test 2. Set URL into URL storage (only digits).",
 			inputs: inputStruct{
 				token:      "41341414134",
-				urluser:    entity.URLUser{URL: "https://go.dev/doc/faq#pass_by_value", UserID: 0},
+				urluser:    models.URLUser{URL: "https://go.dev/doc/faq#pass_by_value", UserID: 0},
 				urlStorage: ur,
 			},
 		},
@@ -85,7 +85,7 @@ func TestFileRepo_SetURLIntoRepo(t *testing.T) {
 			name: "Positive test 3. Empty string as token into URL storage (only digits).",
 			inputs: inputStruct{
 				token:      "",
-				urluser:    entity.URLUser{URL: "https://practicum.yandex.ru/learn/go-advanced-self-paced/courses/8bca0296-484d-45dc-b9ab-f01e0f44f9f4/sprints/145736/topics/63027ac1-f19b-405d-bad5-49e3bbddf30b/lessons/572d89a8-1713-457a-927a-90c2280757bc/", UserID: 0},
+				urluser:    models.URLUser{URL: "https://practicum.yandex.ru/learn/go-advanced-self-paced/courses/8bca0296-484d-45dc-b9ab-f01e0f44f9f4/sprints/145736/topics/63027ac1-f19b-405d-bad5-49e3bbddf30b/lessons/572d89a8-1713-457a-927a-90c2280757bc/", UserID: 0},
 				urlStorage: ur,
 			},
 		},
@@ -109,8 +109,8 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 	var ur FileRepo
 	filePath := "/tmp/temp_test_for_get_url.json"
 	ur.InitRepo(filePath)
-	jr1 := entity.JSONRepo{
-		JSONSlice: []entity.JSONLine{
+	jr1 := models.JSONRepo{
+		JSONSlice: []models.JSONLine{
 			{
 				Token: "qwer",
 				URL:   "http://google.com/1234",
@@ -197,8 +197,8 @@ func TestFileRepo_GetURLFromRepo(t *testing.T) {
 }
 
 func TestDumpRepoToJSONFile(t *testing.T) {
-	jr1 := entity.JSONRepo{
-		JSONSlice: []entity.JSONLine{
+	jr1 := models.JSONRepo{
+		JSONSlice: []models.JSONLine{
 			{
 				Token: "qwer",
 				URL:   "http://google.com/1234",
@@ -213,7 +213,7 @@ func TestDumpRepoToJSONFile(t *testing.T) {
 			},
 		},
 	}
-	var jr2 entity.JSONRepo
+	var jr2 models.JSONRepo
 	filePath := "/tmp/temp_test_for_dump.json"
 	DumpRepoToJSONFile(&jr1, filePath)
 	jsonRepoFile, err := os.OpenFile(filePath, os.O_RDONLY, 0777)
@@ -243,8 +243,8 @@ func TestDumpRepoToJSONFile(t *testing.T) {
 
 func TestRestoreRepoFromJSONFile(t *testing.T) {
 	var toFile []byte
-	jr1 := entity.JSONRepo{
-		JSONSlice: []entity.JSONLine{
+	jr1 := models.JSONRepo{
+		JSONSlice: []models.JSONLine{
 			{
 				Token: "qwer",
 				URL:   "http://google.com/1234",
@@ -259,7 +259,7 @@ func TestRestoreRepoFromJSONFile(t *testing.T) {
 			},
 		},
 	}
-	var jr2 entity.JSONRepo
+	var jr2 models.JSONRepo
 	filePath := "/tmp/temp_test_for_restore.json"
 	jsonRepoFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
 	if err != nil {

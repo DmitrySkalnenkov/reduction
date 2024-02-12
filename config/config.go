@@ -2,7 +2,7 @@ package config
 
 import (
 	"flag"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
 	"os"
 )
 
@@ -96,7 +96,7 @@ func NewConfig() (*ServerParameters, error) {
 
 // SetGlobalVaribales() sets global variables
 func SetGlobalVariables(cfg *ServerParameters) {
-	entity.HostSocketAddrStr = cfg.HostSocketAddrStr
-	entity.BaseURLStr = cfg.BaseURLStr
-	entity.RepoFilePathStr = cfg.RepoFilePathStr
+	models.HostSocketAddrStr = cfg.HostSocketAddrStr
+	models.BaseURLStr = cfg.BaseURLStr
+	models.RepoFilePathStr = cfg.RepoFilePathStr
 }

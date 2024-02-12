@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/DmitrySkalnenkov/reduction/config"
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/memrepo"
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/userrepo"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/controllers/memrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/controllers/userrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
 
 	"io"
 	"net/http"
@@ -22,16 +22,16 @@ func TestPostHandler(t *testing.T) {
 		BaseURLStr:        config.DefaultHostURL,
 	}
 	config.SetGlobalVariables(&sp)
-	entity.UserKeyStorage = new(userrepo.UserRepo)
-	entity.UserKeyStorage.InitRepo("")
-	entity.URLStorage = new(memrepo.MemRepo)
-	entity.URLStorage.InitRepo("")
+	models.UserKeyStorage = new(userrepo.UserRepo)
+	models.UserKeyStorage.InitRepo("")
+	models.URLStorage = new(memrepo.MemRepo)
+	models.URLStorage.InitRepo("")
 
-	entity.URLStorage.SetURLIntoRepo("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
-	entity.URLStorage.SetURLIntoRepo("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
-	entity.URLStorage.SetURLIntoRepo("lahfsdafnb4121l", "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)")
-	entity.URLStorage.SetURLIntoRepo("3123123123123", "https://en.wikipedia.org/wiki/Hungarian_alphabet")
-	entity.URLStorage.SetURLIntoRepo("KJFASSFASDJSJ", "https://en.wikipedia.org/wiki/Latin_alphabet")
+	models.URLStorage.SetURLIntoRepo("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
+	models.URLStorage.SetURLIntoRepo("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
+	models.URLStorage.SetURLIntoRepo("lahfsdafnb4121l", "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)")
+	models.URLStorage.SetURLIntoRepo("3123123123123", "https://en.wikipedia.org/wiki/Hungarian_alphabet")
+	models.URLStorage.SetURLIntoRepo("KJFASSFASDJSJ", "https://en.wikipedia.org/wiki/Latin_alphabet")
 
 	type inputStruct struct {
 		reqMethod string
@@ -95,16 +95,16 @@ func TestGetHandler(t *testing.T) {
 		BaseURLStr:        config.DefaultHostURL,
 	}
 	config.SetGlobalVariables(&sp)
-	entity.UserKeyStorage = new(userrepo.UserRepo)
-	entity.UserKeyStorage.InitRepo("")
-	entity.URLStorage = new(memrepo.MemRepo)
-	entity.URLStorage.InitRepo("")
+	models.UserKeyStorage = new(userrepo.UserRepo)
+	models.UserKeyStorage.InitRepo("")
+	models.URLStorage = new(memrepo.MemRepo)
+	models.URLStorage.InitRepo("")
 
-	entity.URLStorage.SetURLIntoRepo("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
-	entity.URLStorage.SetURLIntoRepo("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
-	entity.URLStorage.SetURLIntoRepo("lahfsdafnb4121l", "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)")
-	entity.URLStorage.SetURLIntoRepo("3123123123123", "https://en.wikipedia.org/wiki/Hungarian_alphabet")
-	entity.URLStorage.SetURLIntoRepo("KJFASSFASDJSJ", "https://en.wikipedia.org/wiki/Latin_alphabet")
+	models.URLStorage.SetURLIntoRepo("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
+	models.URLStorage.SetURLIntoRepo("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
+	models.URLStorage.SetURLIntoRepo("lahfsdafnb4121l", "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)")
+	models.URLStorage.SetURLIntoRepo("3123123123123", "https://en.wikipedia.org/wiki/Hungarian_alphabet")
+	models.URLStorage.SetURLIntoRepo("KJFASSFASDJSJ", "https://en.wikipedia.org/wiki/Latin_alphabet")
 
 	type inputStruct struct {
 		reqMethod string
@@ -187,28 +187,28 @@ func TestGetHandler(t *testing.T) {
 }
 func TestPostShortenHandler(t *testing.T) {
 	//storage.URLStorage.InitRepo("")
-	entity.UserKeyStorage = new(userrepo.UserRepo)
-	entity.UserKeyStorage.InitRepo("")
-	entity.URLStorage = new(memrepo.MemRepo)
-	entity.URLStorage.InitRepo("")
+	models.UserKeyStorage = new(userrepo.UserRepo)
+	models.UserKeyStorage.InitRepo("")
+	models.URLStorage = new(memrepo.MemRepo)
+	models.URLStorage.InitRepo("")
 
-	entity.URLStorage.SetURLIntoRepo("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
-	entity.URLStorage.SetURLIntoRepo("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
-	entity.URLStorage.SetURLIntoRepo("lahfsdafnb4121l", "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)")
-	entity.URLStorage.SetURLIntoRepo("3123123123123", "https://en.wikipedia.org/wiki/Hungarian_alphabet")
-	entity.URLStorage.SetURLIntoRepo("KJFASSFASDJSJ", "https://en.wikipedia.org/wiki/Latin_alphabet")
+	models.URLStorage.SetURLIntoRepo("qwerfadsfd", "https://golang-blog.blogspot.com/2020/01/map-golang.html")
+	models.URLStorage.SetURLIntoRepo("8rewq78rqew", "https://ru.wikipedia.org/wiki/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0")
+	models.URLStorage.SetURLIntoRepo("lahfsdafnb4121l", "https://ru.wikipedia.org/wiki/%D0%A3%D0%BC%D0%BB%D0%B0%D1%83%D1%82_(%D0%B4%D0%B8%D0%B0%D0%BA%D1%80%D0%B8%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA)")
+	models.URLStorage.SetURLIntoRepo("3123123123123", "https://en.wikipedia.org/wiki/Hungarian_alphabet")
+	models.URLStorage.SetURLIntoRepo("KJFASSFASDJSJ", "https://en.wikipedia.org/wiki/Latin_alphabet")
 
 	type inputStruct struct {
 		reqMethod      string
 		reqURL         string
 		reqContentType string
-		reqJSONMsg     entity.TxJSONMessage
+		reqJSONMsg     models.TxJSONMessage
 	}
 
 	type wantStruct struct {
 		respCode        int
 		respContentType string
-		respJSONMsg     entity.TxJSONMessage
+		respJSONMsg     models.TxJSONMessage
 	}
 
 	tests := []struct {
@@ -222,7 +222,7 @@ func TestPostShortenHandler(t *testing.T) {
 				reqMethod:      http.MethodPost,
 				reqURL:         "http://127.0.0.1:8080/",
 				reqContentType: "application/json",
-				reqJSONMsg: entity.TxJSONMessage{
+				reqJSONMsg: models.TxJSONMessage{
 					URL: "http://google.com",
 				},
 			},
@@ -237,7 +237,7 @@ func TestPostShortenHandler(t *testing.T) {
 				reqMethod:      http.MethodPost,
 				reqURL:         "http://127.0.0.1:8080/",
 				reqContentType: "application/xml",
-				reqJSONMsg: entity.TxJSONMessage{
+				reqJSONMsg: models.TxJSONMessage{
 					URL: "http://google.com",
 				},
 			},
@@ -252,7 +252,7 @@ func TestPostShortenHandler(t *testing.T) {
 				reqMethod:      http.MethodPost,
 				reqURL:         "http://127.0.0.1:8080/",
 				reqContentType: "application/json",
-				reqJSONMsg: entity.TxJSONMessage{
+				reqJSONMsg: models.TxJSONMessage{
 					URL: "",
 				},
 			},
@@ -283,7 +283,7 @@ func TestPostShortenHandler(t *testing.T) {
 			fmt.Printf("TEST_DEBUG: Response body is '%s'.\n", string(resultBody))
 			defer result.Body.Close()
 			if result.Header.Get("Content-Type") == "application/json" {
-				var resMsg entity.TxJSONMessage
+				var resMsg models.TxJSONMessage
 				err = json.NewDecoder(w.Body).Decode(&resMsg)
 				if err != nil {
 					t.Errorf("TEST_ERROR: %s:", err)

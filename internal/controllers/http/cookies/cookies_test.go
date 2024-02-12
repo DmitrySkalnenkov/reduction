@@ -1,17 +1,17 @@
 package cookies
 
 import (
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/userrepo"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/controllers/userrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestGetAuthUserID(t *testing.T) {
-	entity.UserKeyStorage = new(userrepo.UserRepo)
-	entity.UserKeyStorage.InitRepo("")
-	entity.UserKeyStorage = &userrepo.UserRepo{
+	models.UserKeyStorage = new(userrepo.UserRepo)
+	models.UserKeyStorage.InitRepo("")
+	models.UserKeyStorage = &userrepo.UserRepo{
 		KeySlice: []string{
 			"123456789012345",
 			"543210987654321",

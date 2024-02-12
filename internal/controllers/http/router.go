@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/http/handlers"
+	"github.com/DmitrySkalnenkov/reduction/internal/controllers/http/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )

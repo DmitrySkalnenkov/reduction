@@ -1,9 +1,10 @@
-package usecase
+package services
 
 import (
 	"fmt"
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/memrepo"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/interfaces"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
+	"github.com/DmitrySkalnenkov/reduction/internal/repo/memrepo"
 	"testing"
 )
 
@@ -53,9 +54,9 @@ func TestReductURL(t *testing.T) {
 	us.InitRepo("")
 
 	type inputStruct struct {
-		urluser        entity.URLUser
+		urluser        models.URLUser
 		shortURLLength int
-		urlStorage     entity.Keeper
+		urlStorage     interfaces.DataRepo
 	}
 
 	tests := []struct {
@@ -66,7 +67,7 @@ func TestReductURL(t *testing.T) {
 		{
 			name: "Positive test. Lenght of the shortenURL is 10",
 			inputs: inputStruct{
-				urluser:        entity.URLUser{URL: "http://google.com/qwertyuiopasdfghjkkllzxcvbnm", UserID: 0},
+				urluser:        models.URLUser{URL: "http://google.com/qwertyuiopasdfghjkkllzxcvbnm", UserID: 0},
 				shortURLLength: 10,
 				urlStorage:     us,
 			},
@@ -75,7 +76,7 @@ func TestReductURL(t *testing.T) {
 		{
 			name: "Positive test. Lenght of the shortenURL is 15",
 			inputs: inputStruct{
-				urluser:        entity.URLUser{URL: "http://google.com/qwertyuiopasdfghjkkllzxcvbnm", UserID: 0},
+				urluser:        models.URLUser{URL: "http://google.com/qwertyuiopasdfghjkkllzxcvbnm", UserID: 0},
 				shortURLLength: 15,
 				urlStorage:     us,
 			},
@@ -84,7 +85,7 @@ func TestReductURL(t *testing.T) {
 		{
 			name: "Positive test. URL with strange symbols",
 			inputs: inputStruct{
-				urluser:        entity.URLUser{URL: "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm", UserID: 0},
+				urluser:        models.URLUser{URL: "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm", UserID: 0},
 				shortURLLength: 15,
 				urlStorage:     us,
 			},
@@ -93,7 +94,7 @@ func TestReductURL(t *testing.T) {
 		{
 			name: "Positive test. Check adding token into urlStorage",
 			inputs: inputStruct{
-				urluser:        entity.URLUser{URL: "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm", UserID: 0},
+				urluser:        models.URLUser{URL: "http://google.com/erty?ui&opa!@#$%^&*()_+~_sdfghjkkllzxcvbnm", UserID: 0},
 				shortURLLength: 15,
 				urlStorage:     us,
 			},

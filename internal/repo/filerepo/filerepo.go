@@ -3,7 +3,7 @@ package filerepo
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
 	"io"
 	"os"
 	"strconv"
@@ -45,8 +45,8 @@ func (repo *FileRepo) PrintRepo() {
 			fmt.Printf("ERROR: Filed get data from repo file.\n")
 			return
 		}
-		//var jsonData entity.JSONRepo
-		var jsonData []entity.JSONLine
+		//var jsonData models.JSONRepo
+		var jsonData []models.JSONLine
 		err = json.Unmarshal(dataFromFile, &jsonData)
 		if err != nil {
 			fmt.Printf("ERROR: Filed unmarshal data from repo file.\n")
@@ -67,9 +67,9 @@ func (repo *FileRepo) PrintRepo() {
 // SetURLIntoRepo() Save token and url in JSON foramat into JSON file
 func (repo *FileRepo) SetURLIntoRepo(token string, value string) {
 	if repo.urlFilePath != "" {
-		var tmpJSONRepo entity.JSONRepo
+		var tmpJSONRepo models.JSONRepo
 		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
-		curJSONLine := entity.JSONLine{Token: token, URL: value, UserID: fmt.Sprintf("%d", 0)} //UserID = 0 - default UserID
+		curJSONLine := models.JSONLine{Token: token, URL: value, UserID: fmt.Sprintf("%d", 0)} //UserID = 0 - default UserID
 		for i := 0; i < len(tmpJSONRepo.JSONSlice); i++ {
 			if curJSONLine.Token == tmpJSONRepo.JSONSlice[i].Token {
 				fmt.Printf("INFO: Token with such urluser ('%s') already in JSON file repository. Token should be unique. The memrepo didn'token change.\n", curJSONLine.Token)
@@ -84,9 +84,9 @@ func (repo *FileRepo) SetURLIntoRepo(token string, value string) {
 // GetURLFromRepo() Get URL from file in JSON format. If token exists isExists = true
 func (repo *FileRepo) GetURLFromRepo(token string) (string, bool) {
 	var isURLExists = false
-	var curURLUser entity.URLUser
+	var curURLUser models.URLUser
 	if repo.urlFilePath != "" {
-		var tmpJSONRepo entity.JSONRepo
+		var tmpJSONRepo models.JSONRepo
 		RestoreRepoFromJSONFile(&tmpJSONRepo, repo.urlFilePath)
 		for i := 0; i < len(tmpJSONRepo.JSONSlice); i++ {
 			if token == tmpJSONRepo.JSONSlice[i].Token {
@@ -96,7 +96,7 @@ func (repo *FileRepo) GetURLFromRepo(token string) (string, bool) {
 				if err != nil {
 					fmt.Printf("ERROR: conver string UserID %s to int.\n", tmpJSONRepo.JSONSlice[i].UserID)
 				}
-				curURLUser = entity.URLUser{URL: tmpJSONRepo.JSONSlice[i].URL, UserID: curUserID}
+				curURLUser = models.URLUser{URL: tmpJSONRepo.JSONSlice[i].URL, UserID: curUserID}
 				return curURLUser.URL, isURLExists
 			}
 		}
@@ -105,7 +105,7 @@ func (repo *FileRepo) GetURLFromRepo(token string) (string, bool) {
 }
 
 // DumpRepoToJSONFIle() dumps data form jr to JSON file with filePath
-func DumpRepoToJSONFile(jr *entity.JSONRepo, filePath string) {
+func DumpRepoToJSONFile(jr *models.JSONRepo, filePath string) {
 	if filePath != "" {
 		var toFile []byte
 		repoFile, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
@@ -131,7 +131,7 @@ func DumpRepoToJSONFile(jr *entity.JSONRepo, filePath string) {
 }
 
 // ResotreRepoToJSONFIle() restore data form JSON file with filePath to jr
-func RestoreRepoFromJSONFile(jr *entity.JSONRepo, filePath string) {
+func RestoreRepoFromJSONFile(jr *models.JSONRepo, filePath string) {
 	if filePath != "" {
 		repoFile, err := os.OpenFile(filePath, os.O_RDONLY, 0777)
 		if err != nil {

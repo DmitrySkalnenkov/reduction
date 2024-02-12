@@ -2,18 +2,18 @@ package memrepo
 
 import (
 	"fmt"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
 )
 
 //(i2) Cлой storage должен имплементировать интерфейс хранения, например repositories. Это понадобится вам для подмены хранилища моком в тестах и использования DI.
 
 type MemRepo struct {
-	urlMap map[string]entity.URLUser
+	urlMap map[string]models.URLUser
 }
 
 // GetURLFromRepo returns saved long URL with UserID from URL storage, and ok
 func (repo *MemRepo) GetURLFromRepo(token string) (string, bool) {
-	defaultURLUser := entity.URLUser{URL: "", UserID: 0}
+	defaultURLUser := models.URLUser{URL: "", UserID: 0}
 	urluser, ok := repo.urlMap[token]
 	if ok {
 		fmt.Printf("DEBUG: Found long URL with token '%s' is URL storage.\n", token)
@@ -34,7 +34,7 @@ func (repo *MemRepo) SetURLIntoRepo(token string, value string) {
 
 // InitRepo() init MemRepo object
 func (repo *MemRepo) InitRepo(repoPath string) {
-	repo.urlMap = make(map[string]entity.URLUser)
+	repo.urlMap = make(map[string]models.URLUser)
 }
 
 func (repo *MemRepo) PrintRepo() {

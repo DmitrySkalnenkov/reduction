@@ -1,10 +1,11 @@
-package usecase
+package services
 
 import (
 	"crypto/rand"
 	"encoding/base32"
 	"fmt"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/interfaces"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
 	"strings"
 )
 
@@ -24,7 +25,7 @@ func randomString(length int) string {
 }
 
 // ReduceURL() reduce long URL to token, save token as key and URL as value into URLStorage, return token.
-func ReduceURL(urluser entity.URLUser, shortURLLength int, pr entity.Keeper) string {
+func ReduceURL(urluser models.URLUser, shortURLLength int, pr interfaces.DataRepo) string {
 	shortURL := randomString(shortURLLength)
 	for {
 		_, ok := pr.GetURLFromRepo(shortURL)
@@ -36,3 +37,11 @@ func ReduceURL(urluser entity.URLUser, shortURLLength int, pr entity.Keeper) str
 		shortURL = randomString(shortURLLength)
 	}
 }
+
+// GetOriginURL() gets saved long url by token
+func GetOriginURL(token string, pr interfaces.DataRepo) (originURL string) {
+	originURL, _ = pr.GetURLFromRepo(token)
+	return originURL
+}
+
+//TODO: add userID into GetURLFromRepo

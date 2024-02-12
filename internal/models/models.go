@@ -1,10 +1,13 @@
-// Package entity defines main entities for business logic (services), database mapping and
+// Package models defines main entities for business logic (services), database mapping and
 // HTTP response objects if suitable. Each logic group entities in own file.
-package entity
+package models
 
-import "github.com/DmitrySkalnenkov/reduction/internal/repo/userrepo"
+import (
+	"github.com/DmitrySkalnenkov/reduction/internal/interfaces"
+	"github.com/DmitrySkalnenkov/reduction/internal/repo/userrepo"
+)
 
-var URLStorage Keeper
+var URLStorage interfaces.DataRepo
 var HostSocketAddrStr string
 var BaseURLStr string
 var RepoFilePathStr string
@@ -31,11 +34,4 @@ type JSONRepo struct {
 type URLUser struct {
 	URL    string
 	UserID int
-}
-
-type Keeper interface {
-	GetURLFromRepo(token string) (string, bool)
-	SetURLIntoRepo(token string, value string)
-	InitRepo(repoPath string)
-	PrintRepo()
 }

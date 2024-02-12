@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,7 +32,7 @@ func GenerateSignedCookie(userID int, key string) (c *http.Cookie) {
 }
 
 func isAuthSignCorrect(userID int, receivedSign string) bool {
-	key := entity.UserKeyStorage.GetKeyFromRepo(userID)
+	key := models.UserKeyStorage.GetKeyFromRepo(userID)
 	userIDStr := fmt.Sprintf("%08d", userID)
 	expectedSign := GenerateSign(userIDStr, key)
 	if receivedSign == expectedSign {
@@ -63,7 +63,7 @@ func GetAuthUserID(w http.ResponseWriter, r *http.Request) int {
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
 			fmt.Printf("INFO: Auth cookie is not found. New auth cookie will be generated.\n")
-			curUserID, curUserKey = entity.UserKeyStorage.AddUserIntoRepo()
+			curUserID, curUserKey = models.UserKeyStorage.AddUserIntoRepo()
 			authCookie = GenerateSignedCookie(curUserID, curUserKey)
 			http.SetCookie(w, authCookie) //Set cookie for new user
 			return curUserID
@@ -79,7 +79,7 @@ func GetAuthUserID(w http.ResponseWriter, r *http.Request) int {
 		return curUserID
 	} else {
 		fmt.Printf("INFO: Auth cookie is not found. New auth cookie will be generated.\n")
-		curUserID, curUserKey = entity.UserKeyStorage.AddUserIntoRepo()
+		curUserID, curUserKey = models.UserKeyStorage.AddUserIntoRepo()
 		authCookie = GenerateSignedCookie(curUserID, curUserKey)
 		http.SetCookie(w, authCookie) //Set cookie for new user
 		return curUserID

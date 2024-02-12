@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/DmitrySkalnenkov/reduction/config"
-	"github.com/DmitrySkalnenkov/reduction/internal/controller/http/cookies"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
-	"github.com/DmitrySkalnenkov/reduction/internal/usecase"
+	"github.com/DmitrySkalnenkov/reduction/internal/controllers/http/cookies"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
+	"github.com/DmitrySkalnenkov/reduction/internal/services"
 	"github.com/go-chi/chi/v5"
 	"io"
 	"log"
@@ -25,8 +25,8 @@ func (w gzWriter) Write(b []byte) (int, error) {
 }
 
 func GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string, respStatus int) {
-	entity.URLStorage.PrintRepo() //for DEBUG
-	var curJSONMsg entity.TxJSONMessage
+	models.URLStorage.PrintRepo() //for DEBUG
+	var curJSONMsg models.TxJSONMessage
 	var reader io.Reader
 	switch r.Header.Get("Content-Type") {
 	case "application/json":
@@ -74,10 +74,10 @@ func GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string, res
 
 // GET handler
 func GetHandler(w http.ResponseWriter, r *http.Request) {
-	entity.URLStorage.PrintRepo() //For Debug
+	models.URLStorage.PrintRepo() //For Debug
 	id := chi.URLParam(r, "id")
 	fmt.Printf("DEBUG: Token of shortened URL is '%s'.\n", id)
-	longURL, ok := entity.URLStorage.GetURLFromRepo(id)
+	longURL, ok := models.URLStorage.GetURLFromRepo(id)
 	if longURL != "" && ok {
 		fmt.Printf("DEBUG: Long URL form URL storage with id '%s' is '%s'\n", id, longURL)
 		w.Header().Set("Location", longURL)
@@ -101,12 +101,12 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	curBodyStr, curRespStatus := GetRequestBody(w, r)
 	curUserID := cookies.GetAuthUserID(w, r)
-	curURLUser := entity.URLUser{URL: curBodyStr, UserID: curUserID}
-	token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
+	curURLUser := models.URLUser{URL: curBodyStr, UserID: curUserID}
+	token := services.ReduceURL(curURLUser, config.DefaultShortURLLength, models.URLStorage)
 	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, token)
-	entity.URLStorage.PrintRepo() //for DEBUG
+	models.URLStorage.PrintRepo() //for DEBUG
 	w.WriteHeader(curRespStatus)
-	_, err = w.Write([]byte(entity.BaseURLStr + "/" + token))
+	_, err = w.Write([]byte(models.BaseURLStr + "/" + token))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -114,12 +114,12 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostShortenHandler(w http.ResponseWriter, r *http.Request) {
-	var respJSONMsg entity.RxJSONMessage
+	var respJSONMsg models.RxJSONMessage
 	curBodyStr, curRespStatus := GetRequestBody(w, r)
 	curUserID := cookies.GetAuthUserID(w, r)
-	curURLUser := entity.URLUser{URL: curBodyStr, UserID: curUserID}
-	token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
-	shortenURL := entity.BaseURLStr + "/" + token
+	curURLUser := models.URLUser{URL: curBodyStr, UserID: curUserID}
+	token := services.ReduceURL(curURLUser, config.DefaultShortURLLength, models.URLStorage)
+	shortenURL := models.BaseURLStr + "/" + token
 	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, token)
 	respJSONMsg.Result = shortenURL
 	w.Header().Set("Content-Type", "application/json")
@@ -147,11 +147,11 @@ func (h plainHandler) GetRequestBody(w http.ResponseWriter, r *http.Request) (bo
 func (h plainHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	curBodyStr, curRespStatus := h.GetRequestBody(w, r)
 	curUserID := cookies.GetAuthUserID(w, r)
-	curURLUser := entity.URLUser{URL: curBodyStr, UserID: curUserID}
-	token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
+	curURLUser := models.URLUser{URL: curBodyStr, UserID: curUserID}
+	token := services.ReduceURL(curURLUser, config.DefaultShortURLLength, models.URLStorage)
 	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, token)
 	w.WriteHeader(curRespStatus)
-	_, err := w.Write([]byte(entity.BaseURLStr + "/" + token))
+	_, err := w.Write([]byte(models.BaseURLStr + "/" + token))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -170,7 +170,7 @@ func NewPlanHandler() http.HandlerFunc{
 }
 
 func (h jsonHandler) GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string, respStatus int) {
-	var body entity.TxJSONMessage
+	var body models.TxJSONMessage
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&body)
 	if err != nil {
@@ -191,11 +191,11 @@ func (h jsonHandler) GetRequestBody(w http.ResponseWriter, r *http.Request) (bod
 func (h jsonHandler) CreateShortURL(w http.ResponseWriter, r *http.Request) {
 	curBodyStr, curRespStatus := h.GetRequestBody(w, r)
 	curUserID := cookies.GetAuthUserID(w, r)
-	curURLUser := entity.URLUser{URL: curBodyStr, UserID: curUserID}
-	token := usecase.ReduceURL(curURLUser, config.DefaultShortURLLength, entity.URLStorage)
+	curURLUser := models.URLUser{URL: curBodyStr, UserID: curUserID}
+	token := services.ReduceURL(curURLUser, config.DefaultShortURLLength, models.URLStorage)
 	fmt.Printf("DEBUG: Shortened URL for UserID = %d is: '%s'.\n", curUserID, token)
 	w.WriteHeader(curRespStatus)
-	_, err := w.Write([]byte(entity.BaseURLStr + "/" + token))
+	_, err := w.Write([]byte(models.BaseURLStr + "/" + token))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

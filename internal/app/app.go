@@ -2,8 +2,8 @@ package app
 
 import (
 	"github.com/DmitrySkalnenkov/reduction/config"
-	router "github.com/DmitrySkalnenkov/reduction/internal/controller/http"
-	"github.com/DmitrySkalnenkov/reduction/internal/entity"
+	router "github.com/DmitrySkalnenkov/reduction/internal/controllers/http"
+	"github.com/DmitrySkalnenkov/reduction/internal/models"
 	"github.com/DmitrySkalnenkov/reduction/internal/repo/filerepo"
 	"github.com/DmitrySkalnenkov/reduction/internal/repo/memrepo"
 	"github.com/DmitrySkalnenkov/reduction/internal/repo/userrepo"
@@ -16,25 +16,25 @@ import (
 func Run(cfg *config.ServerParameters) {
 	//Global variables
 	config.SetGlobalVariables(cfg)
-	entity.HostSocketAddrStr = cfg.HostSocketAddrStr
-	entity.BaseURLStr = cfg.BaseURLStr
-	entity.RepoFilePathStr = cfg.RepoFilePathStr
+	models.HostSocketAddrStr = cfg.HostSocketAddrStr
+	models.BaseURLStr = cfg.BaseURLStr
+	models.RepoFilePathStr = cfg.RepoFilePathStr
 	//Repositories
-	if entity.RepoFilePathStr == "" {
-		entity.URLStorage = new(memrepo.MemRepo)
-		entity.URLStorage.InitRepo("")
+	if models.RepoFilePathStr == "" {
+		models.URLStorage = new(memrepo.MemRepo)
+		models.URLStorage.InitRepo("")
 	} else {
-		entity.URLStorage = new(filerepo.FileRepo)
-		entity.URLStorage.InitRepo(entity.RepoFilePathStr)
+		models.URLStorage = new(filerepo.FileRepo)
+		models.URLStorage.InitRepo(models.RepoFilePathStr)
 	}
-	entity.UserKeyStorage = new(userrepo.UserRepo) //For user keys
-	entity.UserKeyStorage.InitRepo("")
+	models.UserKeyStorage = new(userrepo.UserRepo) //For user keys
+	models.UserKeyStorage.InitRepo("")
 
 	//Router
 	r := router.NewRouter()
 	//Use case
 	s := &http.Server{
-		Addr: entity.HostSocketAddrStr,
+		Addr: models.HostSocketAddrStr,
 	}
 	s.Handler = r
 	log.Fatal(s.ListenAndServe())
