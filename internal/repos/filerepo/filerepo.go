@@ -42,21 +42,21 @@ func (repo *FileRepo) PrintRepo() {
 		defer repo.urlFile.Close()
 		dataFromFile, err := io.ReadAll(repo.urlFile)
 		if err != nil {
-			fmt.Printf("ERROR: Filed get data from repo file.\n")
+			fmt.Printf("ERROR: Filed get data from repos file.\n")
 			return
 		}
 		//var jsonData models.JSONRepo
 		var jsonData []models.JSONLine
 		err = json.Unmarshal(dataFromFile, &jsonData)
 		if err != nil {
-			fmt.Printf("ERROR: Filed unmarshal data from repo file.\n")
+			fmt.Printf("ERROR: Filed unmarshal data from repos file.\n")
 			return
 		} else {
-			fmt.Printf("==repo-begin=============%s=================\n", repo.urlFilePath)
+			fmt.Printf("==repos-begin=============%s=================\n", repo.urlFilePath)
 			for i := 0; i < len(jsonData); i++ {
 				fmt.Printf("'%s':'%s'\n", jsonData[i].Token, jsonData[i].URL)
 			}
-			fmt.Printf("==repo-end===============%s=================\n", repo.urlFilePath)
+			fmt.Printf("==repos-end===============%s=================\n", repo.urlFilePath)
 		}
 	} else {
 		fmt.Printf("ERROR: FileRepo path is empty. Cannot be used filerepository.\n")

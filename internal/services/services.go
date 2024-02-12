@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+type DataService struct {
+	interfaces.IDataRepo
+}
+
 func randomString(length int) string {
 	randomBytes := make([]byte, 32)
 	if length > 0 {
@@ -25,13 +29,13 @@ func randomString(length int) string {
 }
 
 // ReduceURL() reduce long URL to token, save token as key and URL as value into URLStorage, return token.
-func ReduceURL(urluser models.URLUser, shortURLLength int, pr interfaces.DataRepo) string {
+func (ds *DataService) ReduceURL(urluser models.URLUser, shortURLLength int) string {
 	shortURL := randomString(shortURLLength)
 	for {
-		_, ok := pr.GetURLFromRepo(shortURL)
+		_, ok := ds.GetURLFromRepo(shortURL)
 		if !ok {
-			pr.SetURLIntoRepo(shortURL, urluser.URL)
-			pr.PrintRepo() //For DEBUG
+			ds.SetURLIntoRepo(shortURL, urluser.URL)
+			ds.PrintRepo() //For DEBUG
 			return shortURL
 		}
 		shortURL = randomString(shortURLLength)
@@ -39,8 +43,8 @@ func ReduceURL(urluser models.URLUser, shortURLLength int, pr interfaces.DataRep
 }
 
 // GetOriginURL() gets saved long url by token
-func GetOriginURL(token string, pr interfaces.DataRepo) (originURL string) {
-	originURL, _ = pr.GetURLFromRepo(token)
+func (ds *DataService) GetOriginURL(token string) (originURL string) {
+	originURL, _ = ds.GetURLFromRepo(token)
 	return originURL
 }
 

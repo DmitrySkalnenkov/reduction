@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/DmitrySkalnenkov/reduction/internal/interfaces"
 	"github.com/DmitrySkalnenkov/reduction/internal/models"
-	"github.com/DmitrySkalnenkov/reduction/internal/repo/memrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/repos/memrepo"
 	"testing"
 )
 
@@ -56,7 +56,7 @@ func TestReductURL(t *testing.T) {
 	type inputStruct struct {
 		urluser        models.URLUser
 		shortURLLength int
-		urlStorage     interfaces.DataRepo
+		urlStorage     interfaces.IDataRepo
 	}
 
 	tests := []struct {

@@ -14,7 +14,7 @@ type UserRepo struct {
 }
 
 func (repo *UserRepo) InitRepo(repoPath string) {
-	//repo.keySlice = make(map[int]string)
+	//repos.keySlice = make(map[int]string)
 	//defaultKey := strings.Repeat("0", config.DefaultUserKeyLength)
 	repo.KeySlice = make([]string, 1)
 	repo.KeySlice[0] = "defaultKey"

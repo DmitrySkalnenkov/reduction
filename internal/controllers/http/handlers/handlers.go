@@ -25,7 +25,7 @@ func (w gzWriter) Write(b []byte) (int, error) {
 }
 
 func GetRequestBody(w http.ResponseWriter, r *http.Request) (bodyStr string, respStatus int) {
-	models.URLStorage.PrintRepo() //for DEBUG
+	//models.URLStorage.PrintRepo() //for DEBUG
 	var curJSONMsg models.TxJSONMessage
 	var reader io.Reader
 	switch r.Header.Get("Content-Type") {

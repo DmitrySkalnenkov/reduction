@@ -3,11 +3,10 @@
 package models
 
 import (
-	"github.com/DmitrySkalnenkov/reduction/internal/interfaces"
-	"github.com/DmitrySkalnenkov/reduction/internal/repo/userrepo"
+	"github.com/DmitrySkalnenkov/reduction/internal/repos/userrepo"
 )
 
-var URLStorage interfaces.DataRepo
+// var URLStorage interfaces.IDataRepo
 var HostSocketAddrStr string
 var BaseURLStr string
 var RepoFilePathStr string
